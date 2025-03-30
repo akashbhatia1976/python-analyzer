@@ -6,3 +6,4 @@ pdf2image
 openai
 pillow
 numpy
+python-dotenv==1.0.0
