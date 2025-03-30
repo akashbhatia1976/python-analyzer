@@ -1,0 +1,8 @@
+
+flask
+requests
+pytesseract
+pdf2image
+openai
+pillow
+numpy
