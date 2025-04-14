@@ -11,38 +11,6 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Load synonyms and category mappings
-with open("data/synonyms.json", "r") as f:
-    nested_synonyms = json.load(f)
-
-# Flatten synonyms
-synonyms_flat = {}
-for category, entries in nested_synonyms.items():
-    for canonical, synonyms in entries.items():
-        if isinstance(synonyms, dict):
-            for subcanonical, sublist in synonyms.items():
-                for synonym in sublist:
-                    synonyms_flat[synonym.lower().strip()] = subcanonical
-        else:
-            for synonym in synonyms:
-                synonyms_flat[synonym.lower().strip()] = canonical
-
-# Load category mapping
-with open("data/categories_map.json", "r") as f:
-    categories_map = json.load(f)
-
-# Normalize name
-def normalize_test_name(name):
-    key = name.lower().strip()
-    canonical = synonyms_flat.get(key)
-    category = categories_map.get(canonical) if canonical else None
-    return {
-        "originalName": name,
-        "canonicalName": canonical if canonical else name,
-        "category": category if category else None,
-        "normalized": bool(canonical)
-    }
-
 # OpenAI API Key
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 HEADERS = {
@@ -119,16 +87,8 @@ def extract_text_from_pdf(pdf_path):
         log(f"Error extracting text from PDF: {e}")
         return None
 
-def parse_float(val):
-    try:
-        return float(val.replace(",", "").strip())
-    except (ValueError, TypeError, AttributeError):
-        return None
-
 def flatten_parameters(data):
     flat = []
-    unmatched = []
-
     if not isinstance(data, dict):
         return flat
 
@@ -143,24 +103,13 @@ def flatten_parameters(data):
                         "unit": detail.get("Unit", "N/A"),
                         "referenceRange": detail.get("Reference Range", "N/A")
                     })
-                    norm = normalize_test_name(name)
-                    if not norm["normalized"]:
-                        print(f"⚠️ Unmatched parameter: {name}")
-                        unmatched.append(name)
-                    flat[-1].update({
-                        "originalName": norm["originalName"],
-                        "canonicalName": norm["canonicalName"],
-                        "ontologyCategory": norm["category"],
-                        "normalized": norm["normalized"]
-                    })
-
-    print(f"✅ Flattened {len(flat)} parameters. Normalized {sum(1 for p in flat if p.get('normalized'))}, Unmatched: {sum(1 for p in flat if not p.get('normalized'))}")
-    if unmatched:
-        with open("unmatched_parameters.log", "w") as f:
-            for name in unmatched:
-                f.write(f"{name}\n")
-        print("🚨 Unmatched parameters saved to unmatched_parameters.log")
     return flat
+
+def parse_float(val):
+    try:
+        return float(val)
+    except (ValueError, TypeError):
+        return None
 
 def validate_and_fix_response(parsed_response):
     if not parsed_response:
@@ -212,95 +161,3 @@ def analyze_pdf(file_path):
             "success": False,
             "error": str(e)
         }
-
-# ✅ MongoDB Insertion
-from pymongo import MongoClient
-from bson import ObjectId
-from datetime import datetime
-
-MONGO_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
-client = MongoClient(MONGO_URI)
-db = client["medicalReportsDB"]
-
-def clean_and_parse_range(range_str):
-    try:
-        parts = range_str.replace(",", "").split("-")
-        if len(parts) == 2:
-            low = float(parts[0].strip())
-            high = float(parts[1].strip())
-            return low, high
-    except Exception:
-        pass
-    return None, None
-
-def save_to_mongo(user_id, report_name, standardized_data):
-    
-    from datetime import datetime, timezone
-    now = datetime.now(timezone.utc)
-
-
-    abnormal_count = 0
-    for p in standardized_data["parameters"]:
-        val = p.get("value")
-        ref_range = p.get("referenceRange", "")
-        if val is not None and "-" in ref_range:
-            low, high = clean_and_parse_range(ref_range)
-            if low is not None and (val < low or val > high):
-                abnormal_count += 1
-
-    report_data = {
-        "userId": user_id,
-        "reportName": report_name,
-        "timestamp": now,
-        "extractedParameters": standardized_data["extractedparameters"],
-        "abnormalCount": abnormal_count
-    }
-
-    report_result = db.reports.insert_one(report_data)
-    report_id = report_result.inserted_id
-
-    parameters = []
-    graph_edges = []
-
-    for p in standardized_data["parameters"]:
-        p["reportId"] = report_id
-        p["userId"] = user_id
-        p["healthId"] = f"AETHER-{user_id.upper()}"
-        if not p.get("category"):
-            p["category"] = "Unmatched"
-        parameters.append(p)
-
-        if p.get("loincCode"):
-            graph_edges.append({
-                "source": f"report:{str(report_id)}",
-                "target": f"loinc:{p['loincCode']}",
-                "type": "parameter-maps-to",
-                "parameter": p.get("canonicalName"),
-                "timestamp": now
-            })
-
-    if parameters:
-        db.parameters.insert_many(parameters)
-    if graph_edges:
-        db.graph_edges.insert_many(graph_edges)
-
-    print(f"✅ Inserted report '{report_name}' with {len(parameters)} parameters and {len(graph_edges)} graph edges.")
-
-
-if __name__ == "__main__":
-    import sys
-    if len(sys.argv) < 2:
-        print("❌ Usage: python openai_extract_fields_combined_complete.py <pdf_path> [userId] [reportName]")
-        sys.exit(1)
-
-    pdf_path = sys.argv[1]
-    user_id = sys.argv[2] if len(sys.argv) > 2 else "sky001"
-    report_name = sys.argv[3] if len(sys.argv) > 3 else os.path.basename(pdf_path)
-
-    result = analyze_pdf(pdf_path)
-
-    if result.get("success"):
-        save_to_mongo(user_id, report_name, result)
-        print("✅ PDF analysis and MongoDB insert completed successfully.")
-    else:
-        print(f"❌ Failed: {result.get('error')}")
