@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Load synonyms and category mappings
-with open("data/synonyms.json", "r") as f:
+with open(os.path.join(os.path.dirname(__file__), "data", "synonyms.json"), "r") as f:
     nested_synonyms = json.load(f)
 
 # Flatten synonyms
@@ -28,7 +28,7 @@ for category, entries in nested_synonyms.items():
                 synonyms_flat[synonym.lower().strip()] = canonical
 
 # Load category mapping
-with open("data/categories_map.json", "r") as f:
+with open(os.path.join(os.path.dirname(__file__), "data", "categories_map.json"), "r") as f:
     categories_map = json.load(f)
 
 # Normalize name

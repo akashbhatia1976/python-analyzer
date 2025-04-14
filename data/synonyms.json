@@ -1,0 +1,116 @@
+{
+  "CBC (Complete Blood Count)": {
+    "Haemoglobin": ["hb", "hgb", "hemoglobin", "haemoglobin"],
+    "RBC": ["red blood cells", "rbc"],
+    "PCV": ["packed cell volume", "pcv"],
+    "MCV": ["mean corpuscular volume", "mcv"],
+    "MCH": ["mean corpuscular hemoglobin", "mch"],
+    "MCHC": ["mean corpuscular hemoglobin concentration", "mchc"],
+    "RDW": ["red cell distribution width", "rdw"],
+    "WBC Total Count": ["wbc", "white blood cells total count", "wbc total count", "WBC Count", "wbc count", "WEC Total Count"],
+    "WBC Differential Counts": ["wbc differential counts", "wbc differential and absolute counts"],
+    "Lymphocytes": ["lymphocytes (%)", "lymphs", "Lymphocytes"],
+    "Monocytes": ["monocytes (%)", "monos", "Monocytes"],
+    "Neutrophils": ["neutrophils (%)", "neuts", "Neutrophils"],
+    "Eosinophils": ["eosinophils (%)", "eos", "Eosinophils"],
+    "Basophils": ["basophils (%)", "basos", "Basophils"],
+    "Platelet Count": ["platelets", "platelet count", "platelet counts"],
+    "MPV": ["mean platelet volume", "mpv"],
+    "PDW": ["platelet distribution width", "pdw"],
+    "RBC Morphology": ["rbc morphology"],
+    "WBC Morphology": ["wbc morphology", "white blood cell morphology"]
+  },
+  "Kidney Function Tests": {
+    "BUN": ["blood urea nitrogen", "bun", "Bun, Serum", "BUN, Serum"],
+    "Creatinine": ["creatinine", "Creatinine, Serum", "CREATININE, Serum"],
+    "eGFR": ["estimated glomerular filtration rate", "egfr", "eGFR, Serum"],
+    "Total Proteins": ["total proteins", "total proteins, serum", "protein", "total protien", "Total Protein"],
+    "Albumin": ["albumin", "ALBUMIN, Serum", "Albumin, Serum"],
+    "Globulin": ["globulin"],
+    "A/G Ratio": ["albumin/globulin ratio", "a/g ratio", "a/g ratio serum", "a/g ratio, serum"],
+    "Uric Acid": ["uric acid", "uric acid", "uric acid, serum"],
+    "Phosphorus": ["phosphorus", "PHOSPHORUS, Serum", "Phosphorus, Serum", "Phosphorus, SERUM"],
+    "Calcium": ["calcium", "Calcium, Serum", "CALCIUM, SERUM", "Calcium, SERUM"],
+    "Sodium": ["sodium", "sodium, serum"],
+    "Potassium": ["potassium", "Potassium, Serum", "POTASSIUM, SERUM"],
+    "Chloride": ["chloride", "Chloride, Serum", "CHLORIDE, SERUM", "chloride, serum", "CHLORIDE, Serum", "chloride", "chloride serum"],
+    "Blood Urea": ["Blood Urea", "BLOOD UREA", "BLOOD UREA, SERUM", "Blood Urea, Serum", "blood urea", "urea", "blood urea,serum" ],
+    "Ionised Calcium, Serum": ["ionised calcium", "ionised calcium, serum", "ionised calcium (serum)", "lonised calcium"]
+    
+  },
+  "Liver Function Tests": {
+    "Bilirubin Total": ["total bilirubin", "bilirubin", "bilirubin (total)", "bilirubin (total), serum", "bilirubin total"],
+    "Bilirubin Direct": ["direct bilirubin", "BILIRUBIN, Direct", "Bilirubin (Direct)", "BILIRUBIN (DIRECT), Serum", "Bilirubin (Direct), Serum" ],
+    "Bilirubin Indirect": ["indirect bilirubin", "BILIRUBIN, Indirect", "Bilirubin (Indirect)", "BILIRUBIN (INDIRECT)", "BILIRUBIN (INDIRECT), Serum", "Bilirubin (Indirect), Serum"],
+    "SGOT (AST)": ["sgot (ast)", "sgot (ast), serum", "ast", "sgot"],
+    "SGPT (ALT)": ["sgpt (alt)", "sgpt (alt), serum", "alt", "sgpt"],
+    "Gamma GT": ["ggt", "gamma glutamyl transferase", "gamma gt", "gamma gt, serum"],
+    "Alkaline Phosphatase": ["alkaline phosphatase, serum", "alp (alkaline phosphatase)", "alp", "alkaline phosphatase"],
+    "GLOBULIN": ["globulin", "globulin serum", "globulin, serum"],
+    "Albumin": ["albumin", "albumin serum"]
+  },
+  "Iron Studies": {
+    "IRON": ["iron", "Iron"],
+    "UIBC": ["unsaturated iron-binding capacity", "uibc", "uibc (measured)"],
+    "TIBC": ["total iron-binding capacity", "tibc", "total iron binding capacity (tibc)"],
+    "Transferrin": ["transferrin"],
+    "Transferrin Saturation": ["transferrin sat", "transferrin saturation"],
+    "FERRITIN": ["ferritin", "ferritin test", "ferritin level", "FERRITIN", "Ferritin", "ferritin levels"]
+  },
+  "CRP-Quantitative Test": {
+    "CRP-Quantitative": ["crp quantitative", "crp", "CRP-Quantitative", "CRP-Quantitative, Serum", "crp-quantitative (serum)"]
+  },
+  "Ionised Calcium": {
+    "Ionised Calcium, Serum": ["ionised calcium", "ionized calcium"]
+  },
+  "Testosterone": {
+    "Testosterone": ["total testosterone", "testosterone, serum", "serum testosterone"]
+  },
+  "Vitamin D": {
+    "25-hydroxy Vitamin D": ["vitamin d", "25-oh vitamin d", "vitamin d total"]
+  },
+  "Vitamin B12": {
+    "Vitamin B12": ["vitamin b", "Vitamin B", "Vitamin-B12", "vitamin b12", "vitamin b-12"]
+  },
+  "Urine Examination": {
+    "Reaction": ["reaction", "Reaction (ph)", "reaction (pH)", "reaction pH", "Reaction (pH)"],
+    "Specific Gravity": ["specific gravity", "Specific Gravity", "Specific gravity"],
+    "Pus Cells": ["Pus cells", "Pus cells /hpf", "Pus Cells hpf", "pus cells /hpf"],
+    "Epithelial cells": ["epithelial cells", "Epithelial cells /hpf"],
+    "Urine Red Blood Cells": ["Red Blood Cells /hpf", "red blood cells /hpf", "Red blood cells /hpf"]
+  },
+  "Cholesterol Tests": {
+      "Total Cholesterol": ["total cholesterol"],
+      "HDL Cholesterol": ["hdl cholesterol"],
+      "LDL Cholesterol": ["ldl cholesterol"],
+      "Triglycerides": ["triglycerides"]
+  },
+  "Thyroid Profile": {
+    "TSH": ["tsh"],
+    "T3": ["t3"],
+    "T4": ["t4"]
+  },
+  "Blood Sugar": {
+    "Fasting Blood Sugar": ["fasting blood sugar"],
+    "Postprandial Blood Sugar": ["postprandial blood sugar"]
+  },
+  "Coagulation": {
+      "INR": ["inr"],
+      "PTT": ["ptt"],
+      "Prothrombin Time": ["prothrombin time"],
+      "Prothrombin Ratio": ["prothrombin ratio"]
+  },
+  "Cardiac Markers": {
+      "NT-proBNP": ["nt-probnp", "nt-probnp (serum)"]
+    },
+  "Others": {
+    "pH": ["ph"],
+    "Serum": ["serum"],
+    "Biological Reference Range": ["biological reference range"],
+    "Chemical Examination": ["chemical examination"],
+    "Physical Examination": ["physical examination"]
+  }
+  
+}
+
+
