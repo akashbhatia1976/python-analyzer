@@ -7,7 +7,7 @@
     "MCH": ["mean corpuscular hemoglobin", "mch"],
     "MCHC": ["mean corpuscular hemoglobin concentration", "mchc"],
     "RDW": ["red cell distribution width", "rdw"],
-    "WBC Total Count": ["wbc", "white blood cells total count", "wbc total count", "WBC Count", "wbc count", "WEC Total Count"],
+    "WBC Total Count": ["wbc", "white blood cells total count", "wbc total count", "WBC Count", "wbc count", "WEC Total Count", "wec total count"],
     "WBC Differential Counts": ["wbc differential counts", "wbc differential and absolute counts"],
     "Lymphocytes": ["lymphocytes (%)", "lymphs", "Lymphocytes"],
     "Monocytes": ["monocytes (%)", "monos", "Monocytes"],

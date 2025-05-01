@@ -77,7 +77,7 @@ def analyze_with_openai(text):
             "Respond in JSON format ONLY."
         )
         data = {
-            "model": "gpt-3.5-turbo-0125",
+            "model": "gpt-4-turbo-2024-04-09",
             "messages": [
                 {"role": "system", "content": "You are an AI assistant specializing in medical data extraction."},
                 {"role": "user", "content": f"{prompt}\n\n{text}"},
@@ -121,38 +121,62 @@ def extract_text_from_pdf(pdf_path):
 
 def parse_float(val):
     try:
-        return float(val.replace(",", "").strip())
+        if isinstance(val, (int, float)):
+            return float(val)
+        return float(str(val).replace(",", "").strip())
     except (ValueError, TypeError, AttributeError):
         return None
+
 
 def flatten_parameters(data):
     flat = []
     unmatched = []
 
-    if not isinstance(data, dict):
-        return flat
+    if isinstance(data, list):
+        for param in data:
+            name = param.get("Parameter")
+            if not name:
+                continue
+            flat.append({
+                "category": "Auto-detected",
+                "name": name,
+                "value": parse_float(param.get("Value")),
+                "unit": param.get("Unit", "N/A"),
+                "referenceRange": param.get("Reference Range", "N/A")
+            })
+            norm = normalize_test_name(name)
+            if not norm["normalized"]:
+                print(f"⚠️ Unmatched parameter: {name}")
+                unmatched.append(name)
+            flat[-1].update({
+                "originalName": norm["originalName"],
+                "canonicalName": norm["canonicalName"],
+                "ontologyCategory": norm["category"],
+                "normalized": norm["normalized"]
+            })
 
-    for category, params in data.items():
-        if isinstance(params, dict):
-            for name, detail in params.items():
-                if isinstance(detail, dict):
-                    flat.append({
-                        "category": category,
-                        "name": name,
-                        "value": parse_float(detail.get("Value")),
-                        "unit": detail.get("Unit", "N/A"),
-                        "referenceRange": detail.get("Reference Range", "N/A")
-                    })
-                    norm = normalize_test_name(name)
-                    if not norm["normalized"]:
-                        print(f"⚠️ Unmatched parameter: {name}")
-                        unmatched.append(name)
-                    flat[-1].update({
-                        "originalName": norm["originalName"],
-                        "canonicalName": norm["canonicalName"],
-                        "ontologyCategory": norm["category"],
-                        "normalized": norm["normalized"]
-                    })
+    elif isinstance(data, dict):
+        for category, params in data.items():
+            if isinstance(params, dict):
+                for name, detail in params.items():
+                    if isinstance(detail, dict):
+                        flat.append({
+                            "category": category,
+                            "name": name,
+                            "value": parse_float(detail.get("Value")),
+                            "unit": detail.get("Unit", "N/A"),
+                            "referenceRange": detail.get("Reference Range", "N/A")
+                        })
+                        norm = normalize_test_name(name)
+                        if not norm["normalized"]:
+                            print(f"⚠️ Unmatched parameter: {name}")
+                            unmatched.append(name)
+                        flat[-1].update({
+                            "originalName": norm["originalName"],
+                            "canonicalName": norm["canonicalName"],
+                            "ontologyCategory": norm["category"],
+                            "normalized": norm["normalized"]
+                        })
 
     print(f"✅ Flattened {len(flat)} parameters. Normalized {sum(1 for p in flat if p.get('normalized'))}, Unmatched: {sum(1 for p in flat if not p.get('normalized'))}")
     if unmatched:
@@ -161,6 +185,7 @@ def flatten_parameters(data):
                 f.write(f"{name}\n")
         print("🚨 Unmatched parameters saved to unmatched_parameters.log")
     return flat
+
 
 def validate_and_fix_response(parsed_response):
     if not parsed_response:
