@@ -129,9 +129,12 @@ def extract_text_from_pdf(pdf_path):
 
 def parse_float(val):
     try:
-        return float(val.replace(",", "").strip())
+        if isinstance(val, (int, float)):
+            return float(val)
+        return float(str(val).replace(",", "").strip())
     except (ValueError, TypeError, AttributeError):
         return None
+
 
 def flatten_parameters(data):
     flat = []
