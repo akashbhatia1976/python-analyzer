@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Load synonyms and category mappings
-with open("data/synonyms.json", "r") as f:
+with open(os.path.join(os.path.dirname(__file__), "data", "synonyms.json"), "r") as f:
     nested_synonyms = json.load(f)
 
 # Flatten synonyms
@@ -28,18 +28,11 @@ for category, entries in nested_synonyms.items():
                 synonyms_flat[synonym.lower().strip()] = canonical
 
 # Load category mapping
-with open("data/categories_map.json", "r") as f:
+with open(os.path.join(os.path.dirname(__file__), "data", "categories_map.json"), "r") as f:
     categories_map = json.load(f)
 
 # Normalize name
 def normalize_test_name(name):
-    if not name or not isinstance(name, str):
-        return {
-            "originalName": name,
-            "canonicalName": name,
-            "category": None,
-            "normalized": False
-        }
     key = name.lower().strip()
     canonical = synonyms_flat.get(key)
     category = categories_map.get(canonical) if canonical else None
@@ -49,7 +42,6 @@ def normalize_test_name(name):
         "category": category if category else None,
         "normalized": bool(canonical)
     }
-
 
 # OpenAI API Key
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -129,38 +121,62 @@ def extract_text_from_pdf(pdf_path):
 
 def parse_float(val):
     try:
-        return float(val.replace(",", "").strip())
+        if isinstance(val, (int, float)):
+            return float(val)
+        return float(str(val).replace(",", "").strip())
     except (ValueError, TypeError, AttributeError):
         return None
+
 
 def flatten_parameters(data):
     flat = []
     unmatched = []
 
-    if not isinstance(data, dict):
-        return flat
+    if isinstance(data, list):
+        for param in data:
+            name = param.get("Parameter")
+            if not name:
+                continue
+            flat.append({
+                "category": "Auto-detected",
+                "name": name,
+                "value": parse_float(param.get("Value")),
+                "unit": param.get("Unit", "N/A"),
+                "referenceRange": param.get("Reference Range", "N/A")
+            })
+            norm = normalize_test_name(name)
+            if not norm["normalized"]:
+                print(f"⚠️ Unmatched parameter: {name}")
+                unmatched.append(name)
+            flat[-1].update({
+                "originalName": norm["originalName"],
+                "canonicalName": norm["canonicalName"],
+                "ontologyCategory": norm["category"],
+                "normalized": norm["normalized"]
+            })
 
-    for category, params in data.items():
-        if isinstance(params, dict):
-            for name, detail in params.items():
-                if isinstance(detail, dict):
-                    flat.append({
-                        "category": category,
-                        "name": name,
-                        "value": parse_float(detail.get("Value")),
-                        "unit": detail.get("Unit", "N/A"),
-                        "referenceRange": detail.get("Reference Range", "N/A")
-                    })
-                    norm = normalize_test_name(name)
-                    if not norm["normalized"]:
-                        print(f"⚠️ Unmatched parameter: {name}")
-                        unmatched.append(name)
-                    flat[-1].update({
-                        "originalName": norm["originalName"],
-                        "canonicalName": norm["canonicalName"],
-                        "ontologyCategory": norm["category"],
-                        "normalized": norm["normalized"]
-                    })
+    elif isinstance(data, dict):
+        for category, params in data.items():
+            if isinstance(params, dict):
+                for name, detail in params.items():
+                    if isinstance(detail, dict):
+                        flat.append({
+                            "category": category,
+                            "name": name,
+                            "value": parse_float(detail.get("Value")),
+                            "unit": detail.get("Unit", "N/A"),
+                            "referenceRange": detail.get("Reference Range", "N/A")
+                        })
+                        norm = normalize_test_name(name)
+                        if not norm["normalized"]:
+                            print(f"⚠️ Unmatched parameter: {name}")
+                            unmatched.append(name)
+                        flat[-1].update({
+                            "originalName": norm["originalName"],
+                            "canonicalName": norm["canonicalName"],
+                            "ontologyCategory": norm["category"],
+                            "normalized": norm["normalized"]
+                        })
 
     print(f"✅ Flattened {len(flat)} parameters. Normalized {sum(1 for p in flat if p.get('normalized'))}, Unmatched: {sum(1 for p in flat if not p.get('normalized'))}")
     if unmatched:
@@ -169,6 +185,7 @@ def flatten_parameters(data):
                 f.write(f"{name}\n")
         print("🚨 Unmatched parameters saved to unmatched_parameters.log")
     return flat
+
 
 def validate_and_fix_response(parsed_response):
     if not parsed_response:
@@ -200,33 +217,6 @@ def validate_and_fix_response(parsed_response):
         "message": "Data extraction completed"
     }
 
-def normalize_openai_response(parsed):
-    """
-    Converts flat array of parameters to dict-of-dicts by inferred category.
-    Skips entries where 'Name' or 'Parameter' is missing.
-    """
-    if isinstance(parsed.get("Medical Parameters"), list):
-        grouped = {}
-        for param in parsed["Medical Parameters"]:
-            name = param.get("Test Name") or param.get("Parameter") or param.get("Name")
-            if not name:
-                print("⚠️ Skipping parameter with null name.")
-                continue  # Skip if name is missing
-            value = param.get("Value")
-            unit = param.get("Unit", "N/A")
-            ref_range = param.get("Reference Range", "N/A")
-            category = "Auto-detected"
-            grouped.setdefault(category, {})[name] = {
-                "Value": value,
-                "Unit": unit,
-                "Reference Range": ref_range
-            }
-        parsed["Medical Parameters"] = grouped
-    return parsed
-
-
-
-
 def analyze_pdf(file_path):
     try:
         log("Extracting text from PDF...")
@@ -239,9 +229,6 @@ def analyze_pdf(file_path):
         if not openai_response:
             raise ValueError("Failed to analyze text with OpenAI.")
 
-# ✅ Apply normalization wrapper
-        openai_response = normalize_openai_response(openai_response)
-        
         standardized_output = validate_and_fix_response(openai_response)
         return standardized_output
     except Exception as e:
