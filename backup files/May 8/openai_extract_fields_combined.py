@@ -236,34 +236,14 @@ def analyze_pdf(path, user_id="demo001", report_name=None):
         json.dump(flat, f, indent=2)
 
     save_to_mongo(user_id, report_name or os.path.basename(path), full, flat)
-    
-    return {
-        "parameters": flat,
-        "extractedParameters": full.get("Medical Parameters", {})
-    }
 
 if __name__ == "__main__":
     import sys
     if len(sys.argv) < 2:
         print("Usage: python script.py <pdf_path> [userId] [fileName]")
         exit(1)
-
     pdf = sys.argv[1]
     uid = sys.argv[2] if len(sys.argv) > 2 else "demo001"
     name = sys.argv[3] if len(sys.argv) > 3 else os.path.basename(pdf)
-
-    result = analyze_pdf(pdf, uid, name)
-
-    if result:
-        print(json.dumps({
-            "parameters": result["parameters"],
-            "extractedParameters": result["extractedParameters"]
-        }))
-    else:
-        print(json.dumps({
-            "parameters": [],
-            "extractedParameters": {}
-        }))
-
-
+    analyze_pdf(pdf, uid, name)
 
