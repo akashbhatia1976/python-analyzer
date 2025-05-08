@@ -237,6 +237,13 @@ def analyze_pdf(path, user_id="demo001", report_name=None):
 
     save_to_mongo(user_id, report_name or os.path.basename(path), full, flat)
     
+    from bson import ObjectId  # Ensure this is imported
+
+    # Convert reportId to string in flat parameters
+    for p in flat:
+    if isinstance(p.get("reportId"), ObjectId):
+        p["reportId"] = str(p["reportId"])
+
     return {
         "parameters": flat,
         "extractedParameters": full.get("Medical Parameters", {})
