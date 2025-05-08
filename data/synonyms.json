@@ -125,15 +125,15 @@
   },
 
   "Hepatitis B": {
-      "Hepatitis B Surface Antigen": [
+    "Hepatitis B Surface Antigen": [
         "Hepatitis \"B\" Surface Antigen (HBsAg), Serum",
         "Hepatitis \"B\" Surface Antigen (HBsAg)"
       ]
     },
 
-    "Hepatitis C Virus Antibodies": {
-      "Hepatitis C": ["HCV Serum"]
-    }
+  "Hepatitis C Virus Antibodies": {
+    "Hepatitis C": ["HCV Serum"]
   }
+}
 
 
