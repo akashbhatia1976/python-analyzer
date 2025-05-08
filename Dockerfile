@@ -17,5 +17,8 @@ COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
+# Expose Flask port
+EXPOSE 8080
+
 # Start Flask app
-CMD ["python", "main.py"]
+CMD ["python", "app.py"]
