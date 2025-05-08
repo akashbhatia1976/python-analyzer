@@ -152,8 +152,8 @@
       "Hepatitis B Surface Antigen": [
         "hepatitis \"b\" surface antigen (hbsag), serum",
         "hepatitis \"b\" surface antigen (hbsag)",
-        "hepatitis 'b' surface antigen (hbsag), serum",   // ← new
-        "hepatitis 'b' surface antigen (hbsag)",          // ← new
+        "hepatitis 'b' surface antigen (hbsag), serum",
+        "hepatitis 'b' surface antigen (hbsag)",
         "hbsag", "hb sag", "hep b surface antigen",
         "hepatitis b surface ag", "hbsag serum", "hbsag test"
       ]
@@ -162,7 +162,7 @@
   "Hepatitis C": {
       "Hepatitis C": [
           "hcv serum",
-          "hcv  serum",         // ← extra-space variant catches double-space line-break
+          "hcv  serum",
           "anti hcv", "hcv antibodies", "hcv ab",
           "anti-hcv antibody", "anti hcv serum", "anti-hcv ab test"
         ]
