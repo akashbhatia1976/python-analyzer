@@ -232,8 +232,8 @@ def analyze_pdf(path, user_id="demo001", report_name=None):
     full, flat = validate_response(ai_resp)
 
     # Save flattened parameters for debug
-    with open("debug_flat_parameters.json", "w") as f:
-        json.dump(flat, f, indent=2)
+    #with open("debug_flat_parameters.json", "w") as f:
+    #    json.dump(flat, f, indent=2)
 
     save_to_mongo(user_id, report_name or os.path.basename(path), full, flat)
     
