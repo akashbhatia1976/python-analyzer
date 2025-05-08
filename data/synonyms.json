@@ -10,10 +10,15 @@
     "WBC Total Count": ["wbc", "white blood cells total count", "wbc total count", "WBC Count", "wbc count", "WEC Total Count", "wec total count", "Total W.B.C. Count"],
     "WBC Differential Counts": ["wbc differential counts", "wbc differential and absolute counts"],
     "Lymphocytes": ["lymphocytes (%)", "lymphs", "Lymphocytes"],
+    "Absolute Lymphocytes": ["Absolute Lymphocytes"],
     "Monocytes": ["monocytes (%)", "monos", "Monocytes"],
+    "Absolute Monocytes": ["Absolute Monocytes"],
     "Neutrophils": ["neutrophils (%)", "neuts", "Neutrophils"],
+    "Absolute Neutrophils": ["Absolute Neutrophils"],
     "Eosinophils": ["eosinophils (%)", "eos", "Eosinophils"],
+    "Absolute Eosinophils": ["Absolute Eosinophils"],
     "Basophils": ["basophils (%)", "basos", "Basophils"],
+    "Absolute Basophils": ["Absolute Basophils"],
     "Platelet Count": ["platelets", "platelet count", "platelet counts"],
     "MPV": ["mean platelet volume", "mpv"],
     "PDW": ["platelet distribution width", "pdw"],
@@ -51,8 +56,8 @@
   },
   "Iron Studies": {
     "IRON": ["iron", "Iron", "IRON, Serum"],
-    "UIBC": ["unsaturated iron-binding capacity", "uibc", "uibc (measured)"],
-    "TIBC": ["total iron-binding capacity", "tibc", "total iron binding capacity (tibc)"],
+    "UIBC": ["unsaturated iron-binding capacity", "uibc", "uibc (measured)", "UIBC (measured), Serum"],
+    "TIBC": ["total iron-binding capacity", "tibc", "total iron binding capacity (tibc)", "TOTAL IRON BINDING CAPACITY (TIBC), Serum"],
     "Transferrin": ["transferrin", "TRANSFERRIN, Serum"],
     "Transferrin Saturation": ["transferrin sat", "transferrin saturation", "TRANSFERRIN SATURATION, Serum"],
     "FERRITIN": ["ferritin", "ferritin test", "ferritin level", "FERRITIN", "Ferritin", "ferritin levels", "FERRITIN, Serum"]
@@ -101,7 +106,7 @@
       "Prothrombin Ratio": ["prothrombin ratio"]
   },
   "Cardiac Markers": {
-      "NT-proBNP": ["nt-probnp", "nt-probnp (serum)"]
+      "NT-proBNP": ["nt-probnp", "nt-probnp (serum)", "NT-proBNP, Serum"]
     },
   "Others": {
     "pH": ["ph"],   
@@ -117,6 +122,16 @@
   },
   "Electrolytes": {
     "Carbon dioxide, total": ["Carbon dioxide, total", "Total CO2", "Bicarbonate", "carbon dioxide, total [moles/volume] in blood"]
+  }
+  
+  "Hepatitis B": {
+    "Hepatitis B Surface Antigen": ["Hepatitis "B" Surface Antigen
+    (HBsAg), Serum", "Hepatitis B Surface Antigen
+        (HBsAg)"]
+  },
+
+  "Hepatitis C Virus Antibodies": {
+    "Hepatitis C": ["HCV Serum"]
   }
   
 }
