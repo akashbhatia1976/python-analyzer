@@ -241,8 +241,8 @@ def analyze_pdf(path, user_id="demo001", report_name=None):
 
     # Convert reportId to string in flat parameters
     for p in flat:
-    if isinstance(p.get("reportId"), ObjectId):
-        p["reportId"] = str(p["reportId"])
+        if isinstance(p.get("reportId"), ObjectId):
+            p["reportId"] = str(p["reportId"])
 
     return {
         "parameters": flat,
