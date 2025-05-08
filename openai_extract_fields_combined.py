@@ -9,6 +9,18 @@ import pytesseract
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
+from bson import ObjectId
+from datetime import date
+
+def scrub(o):
+    """Convert anything the json module can’t handle."""
+    if isinstance(o, ObjectId):
+        return str(o)
+    if isinstance(o, (datetime, date)):
+        return o.isoformat()
+    raise TypeError  # let json.dumps complain about anything else
+
+
 load_dotenv()
 
 # Load synonym and category mappings
@@ -99,8 +111,8 @@ def analyze_with_openai(text):
         raw_json = response.json()
 
         # Save raw OpenAI response
-        with open("debug_openai_response.json", "w") as f:
-            json.dump(raw_json, f, indent=2)
+       # with open("debug_openai_response.json", "w") as f:
+      #      json.dump(raw_json, f, indent=2)
 
         content = raw_json.get("choices", [])[0].get("message", {}).get("content", "").strip()
         if not content:
@@ -218,7 +230,9 @@ def save_to_mongo(user_id, report_name, resp, flat):
         p["healthId"] = f"AETHER-{user_id.upper()}"
         if not p.get("category"):
             p["category"] = "Unmatched"
-    db.parameters.insert_many(flat)
+   # db.parameters.insert_many(flat)
+    db.parameters.insert_many([p.copy() for p in flat])  # ← new, no in-place mutation
+
 
     print(f"✅ Inserted {report_name} | {len(flat)} parameters | Abnormal: {len(abnormal_params)}")
 
@@ -237,7 +251,7 @@ def analyze_pdf(path, user_id="demo001", report_name=None):
 
     save_to_mongo(user_id, report_name or os.path.basename(path), full, flat)
     
-    from bson import ObjectId  # Ensure this is imported
+  
 
     # Convert reportId to string in flat parameters
     for p in flat:
@@ -255,8 +269,8 @@ if __name__ == "__main__":
         print("Usage: python script.py <pdf_path> [userId] [fileName]")
         exit(1)
 
-    pdf = sys.argv[1]
-    uid = sys.argv[2] if len(sys.argv) > 2 else "demo001"
+    pdf  = sys.argv[1]
+    uid  = sys.argv[2] if len(sys.argv) > 2 else "demo001"
     name = sys.argv[3] if len(sys.argv) > 3 else os.path.basename(pdf)
 
     result = analyze_pdf(pdf, uid, name)
@@ -265,12 +279,14 @@ if __name__ == "__main__":
         print(json.dumps({
             "parameters": result["parameters"],
             "extractedParameters": result["extractedParameters"]
-        }))
+        }, default=scrub))
     else:
         print(json.dumps({
             "parameters": [],
             "extractedParameters": {}
-        }))
+        }, default=scrub))
+
+
 
 
 
