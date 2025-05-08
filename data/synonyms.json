@@ -152,26 +152,34 @@
       "Hepatitis B Surface Antigen": [
         "hepatitis \"b\" surface antigen (hbsag), serum",
         "hepatitis \"b\" surface antigen (hbsag)",
-        "hbsag",
-        "hb sag",
-        "hep b surface antigen",
-        "hepatitis b surface ag",
-        "hbsag serum",
-        "hbsag test"
+        "hepatitis 'b' surface antigen (hbsag), serum",   // ← new
+        "hepatitis 'b' surface antigen (hbsag)",          // ← new
+        "hbsag", "hb sag", "hep b surface antigen",
+        "hepatitis b surface ag", "hbsag serum", "hbsag test"
       ]
     },
 
-  "Hepatitis C Virus Antibodies": {
+  "Hepatitis C": {
       "Hepatitis C": [
-        "hcv serum",
-        "anti hcv",
-        "hcv antibodies",
-        "hcv ab",
-        "anti-hcv antibody",
-        "anti hcv serum",
-        "anti-hcv ab test"
+          "hcv serum",
+          "hcv  serum",         // ← extra-space variant catches double-space line-break
+          "anti hcv", "hcv antibodies", "hcv ab",
+          "anti-hcv antibody", "anti hcv serum", "anti-hcv ab test"
+        ]
+    },
+
+  "HIV": {
+      "HIV 1+2 / p24 Combo": [
+          "hiv 1/2 antibodies",
+          "hiv 1+2 antibodies",
+          "hiv 1+2 ab",
+          "hiv combo",
+          "hiv p24 antigen",
+          "hiv 1 p24 antigen",
+          "hiv combo test"
       ]
-    }
   }
+
+}
 
 
