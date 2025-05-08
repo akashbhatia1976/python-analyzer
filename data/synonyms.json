@@ -122,18 +122,18 @@
   },
   "Electrolytes": {
     "Carbon dioxide, total": ["Carbon dioxide, total", "Total CO2", "Bicarbonate", "carbon dioxide, total [moles/volume] in blood"]
-  }
-  
-  "Hepatitis B": {
-    "Hepatitis B Surface Antigen": ["Hepatitis "B" Surface Antigen
-    (HBsAg), Serum", "Hepatitis B Surface Antigen
-        (HBsAg)"]
   },
 
-  "Hepatitis C Virus Antibodies": {
-    "Hepatitis C": ["HCV Serum"]
+  "Hepatitis B": {
+      "Hepatitis B Surface Antigen": [
+        "Hepatitis \"B\" Surface Antigen (HBsAg), Serum",
+        "Hepatitis \"B\" Surface Antigen (HBsAg)"
+      ]
+    },
+
+    "Hepatitis C Virus Antibodies": {
+      "Hepatitis C": ["HCV Serum"]
+    }
   }
-  
-}
 
 
