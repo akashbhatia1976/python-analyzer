@@ -10,15 +10,39 @@
     "WBC Total Count": ["wbc", "white blood cells total count", "wbc total count", "WBC Count", "wbc count", "WEC Total Count", "wec total count", "Total W.B.C. Count"],
     "WBC Differential Counts": ["wbc differential counts", "wbc differential and absolute counts"],
     "Lymphocytes": ["lymphocytes (%)", "lymphs", "Lymphocytes"],
-    "Absolute Lymphocytes": ["Absolute Lymphocytes"],
+    "Absolute Lymphocytes": [
+      "absolute lymphocytes",
+      "absolute lymphocyte count",
+      "abs lymphs"
+    ],
     "Monocytes": ["monocytes (%)", "monos", "Monocytes"],
-    "Absolute Monocytes": ["Absolute Monocytes"],
+    "Absolute Monocytes": [
+      "absolute monocytes",
+      "absolute monocyte count",
+      "abs monos"
+    ],
     "Neutrophils": ["neutrophils (%)", "neuts", "Neutrophils"],
-    "Absolute Neutrophils": ["Absolute Neutrophils"],
+    "Absolute Neutrophils": [
+        "absolute neutrophils",
+        "absolute neutrophil count",
+        "abs neutrophils",
+        "abs neutrophil",
+        "absolute neutrophils (cells/µl)"
+      ],
     "Eosinophils": ["eosinophils (%)", "eos", "Eosinophils"],
-    "Absolute Eosinophils": ["Absolute Eosinophils"],
+    "Absolute Eosinophils": [
+      "absolute eosinophils",
+      "absolute eosinophil count",
+      "abs eos",
+      "abs eosinophils"
+    ],
     "Basophils": ["basophils (%)", "basos", "Basophils"],
-    "Absolute Basophils": ["Absolute Basophils"],
+    "Absolute Basophils": [
+      "absolute basophils",
+      "absolute basophil count",
+      "abs basophils",
+      "absolute basophils (cells/µl)"
+    ],
     "Platelet Count": ["platelets", "platelet count", "platelet counts"],
     "MPV": ["mean platelet volume", "mpv"],
     "PDW": ["platelet distribution width", "pdw"],
@@ -123,17 +147,31 @@
   "Electrolytes": {
     "Carbon dioxide, total": ["Carbon dioxide, total", "Total CO2", "Bicarbonate", "carbon dioxide, total [moles/volume] in blood"]
   },
-
+  
   "Hepatitis B": {
-    "Hepatitis B Surface Antigen": [
-        "Hepatitis \"B\" Surface Antigen (HBsAg), Serum",
-        "Hepatitis \"B\" Surface Antigen (HBsAg)"
+      "Hepatitis B Surface Antigen": [
+        "hepatitis \"b\" surface antigen (hbsag), serum",
+        "hepatitis \"b\" surface antigen (hbsag)",
+        "hbsag",
+        "hb sag",
+        "hep b surface antigen",
+        "hepatitis b surface ag",
+        "hbsag serum",
+        "hbsag test"
       ]
     },
 
   "Hepatitis C Virus Antibodies": {
-    "Hepatitis C": ["HCV Serum"]
+      "Hepatitis C": [
+        "hcv serum",
+        "anti hcv",
+        "hcv antibodies",
+        "hcv ab",
+        "anti-hcv antibody",
+        "anti hcv serum",
+        "anti-hcv ab test"
+      ]
+    }
   }
-}
 
 
