@@ -237,7 +237,8 @@ def save_to_mongo(user_id, report_name, resp, flat):
     print(f"✅ Inserted {report_name} | {len(flat)} parameters | Abnormal: {len(abnormal_params)}")
 
 # --- Main runner
-def analyze_pdf(path, user_id="demo001", report_name=None):
+def analyze_pdf(path, user_id, report_name=None):
+
     text = extract_text_from_pdf(path)
     ai_resp = analyze_with_openai(text)
     if not ai_resp:
@@ -269,8 +270,13 @@ if __name__ == "__main__":
         print("Usage: python script.py <pdf_path> [userId] [fileName]")
         exit(1)
 
+    
+    if len(sys.argv) < 3:
+        print("❌ Missing required userId argument.")
+        exit(1)
     pdf  = sys.argv[1]
-    uid  = sys.argv[2] if len(sys.argv) > 2 else "demo001"
+    uid = sys.argv[2]
+
     name = sys.argv[3] if len(sys.argv) > 3 else os.path.basename(pdf)
 
     result = analyze_pdf(pdf, uid, name)
