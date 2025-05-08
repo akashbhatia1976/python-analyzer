@@ -68,5 +68,15 @@
   "PTT": "Coagulation",
   "Prothrombin Time": "Coagulation",
   "Prothrombin Ratio": "Coagulation",
-  "NT-proBNP": "Cardiac Markers"
+  "NT-proBNP": "Cardiac Markers",
+  "Absolute Lymphocytes": "CBC (Complete Blood Count)",
+  "Absolute Monocytes": "CBC (Complete Blood Count)",
+  "Absolute Neutrophils": "CBC (Complete Blood Count)",
+  "Absolute Eosinophils": "CBC (Complete Blood Count)",
+  "Absolute Basophils": "CBC (Complete Blood Count)",
+  "Hepatitis B Surface Antigen": "Hepatitis B",
+  "Hepatitis C": "Hepatitis C Virus Antibodies",
+  "HIV 1+0/2 Antibodies and HIV 1 p24 Antigen": "HIV"
+  }
+
 }
