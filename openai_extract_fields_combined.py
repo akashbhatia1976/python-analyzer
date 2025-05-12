@@ -236,6 +236,8 @@ def save_to_mongo(user_id, report_name, resp, flat):
 
     print(f"✅ Inserted {report_name} | {len(flat)} parameters | Abnormal: {len(abnormal_params)}")
 
+    return report_id
+    
 # --- Main runner
 def analyze_pdf(path, user_id, report_name=None):
 
@@ -250,7 +252,7 @@ def analyze_pdf(path, user_id, report_name=None):
     #with open("debug_flat_parameters.json", "w") as f:
     #    json.dump(flat, f, indent=2)
 
-    save_to_mongo(user_id, report_name or os.path.basename(path), full, flat)
+    report_id = save_to_mongo(user_id, report_name or os.path.basename(path), full, flat)
     
   
 
@@ -260,6 +262,7 @@ def analyze_pdf(path, user_id, report_name=None):
             p["reportId"] = str(p["reportId"])
 
     return {
+        "reportId": str(report_id),
         "parameters": flat,
         "extractedParameters": full.get("Medical Parameters", {})
     }
