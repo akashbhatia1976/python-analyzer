@@ -204,6 +204,9 @@ client = MongoClient(MONGO_URI)
 db = client["medicalReportsTestDB"]
 
 def save_to_mongo(user_id, report_name, resp, flat, report_date=None):
+
+    print(f"🛠️ Incoming report_date = {report_date}")
+
     now = datetime.now(timezone.utc)
     abnormal_params = []
 
@@ -218,6 +221,9 @@ def save_to_mongo(user_id, report_name, resp, flat, report_date=None):
         parsed_date = datetime.fromisoformat(report_date)
     except Exception:
         parsed_date = now
+        
+    print(f"📅 Parsed report_date = {parsed_date}")
+
 
     report_data = {
         "userId": user_id,
