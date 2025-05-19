@@ -8,7 +8,10 @@ app = Flask(__name__)
 @app.route("/analyze", methods=["POST"])
 @app.route("/analyze", methods=["POST"])
 @app.route("/analyze", methods=["POST"])
+
+
 def analyze():
+    print("🟡 HIT /analyze endpoint", flush=True)
     if 'file' not in request.files:
         return jsonify({ "error": "No file provided." }), 400
 
