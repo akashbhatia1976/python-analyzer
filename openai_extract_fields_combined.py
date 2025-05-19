@@ -203,7 +203,7 @@ MONGO_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
 client = MongoClient(MONGO_URI)
 db = client["medicalReportsTestDB"]
 
-def save_to_mongo(user_id, report_name, resp, flat):
+def save_to_mongo(user_id, report_name, resp, flat, report_date=None):
     now = datetime.now(timezone.utc)
     abnormal_params = []
 
@@ -214,10 +214,16 @@ def save_to_mongo(user_id, report_name, resp, flat):
             if low is not None and (val < low or val > high):
                 abnormal_params.append(p)
 
+    try:
+        parsed_date = datetime.fromisoformat(report_date)
+    except Exception:
+        parsed_date = now
+
     report_data = {
         "userId": user_id,
         "fileName": report_name,
         "timestamp": now,
+        "date": parsed_date,
         "extractedParameters": flat,
         "abnormalCount": len(abnormal_params),
         "abnormalParameters": abnormal_params
@@ -239,7 +245,7 @@ def save_to_mongo(user_id, report_name, resp, flat):
     return report_id
     
 # --- Main runner
-def analyze_pdf(path, user_id, report_name=None):
+def analyze_pdf(path, user_id, report_name=None, report_date=None):
 
     text = extract_text_from_pdf(path)
     ai_resp = analyze_with_openai(text)
@@ -252,7 +258,7 @@ def analyze_pdf(path, user_id, report_name=None):
     #with open("debug_flat_parameters.json", "w") as f:
     #    json.dump(flat, f, indent=2)
 
-    report_id = save_to_mongo(user_id, report_name or os.path.basename(path), full, flat)
+    report_id = save_to_mongo(user_id, report_name or os.path.basename(path), full, flat, report_date)
     
   
 
@@ -281,8 +287,9 @@ if __name__ == "__main__":
     uid = sys.argv[2]
 
     name = sys.argv[3] if len(sys.argv) > 3 else os.path.basename(pdf)
+    report_date = sys.argv[4] if len(sys.argv) > 4 else None
 
-    result = analyze_pdf(pdf, uid, name)
+    result = analyze_pdf(pdf, uid, name, report_date)
 
     if result:
         print(json.dumps({
