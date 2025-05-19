@@ -23,7 +23,7 @@ def analyze():
 
     user_id = request.form.get("userId")
     report_name = request.form.get("reportName")
-    report_date = request.form.get("reportDate")
+    report_date = request.values.get("reportDate")
 
     print(f"📩 Received form keys: {list(request.form.keys())}", flush=True)
     print(f"🧾 user_id = {user_id}, report_name = {report_name}, report_date = {report_date}", flush=True)
