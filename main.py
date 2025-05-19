@@ -18,6 +18,8 @@ def analyze():
     file = request.files['file']
     temp_path = os.path.join("/tmp", file.filename)
     file.save(temp_path)
+    
+    print(f"📬 Full form data: {request.form.to_dict()}", flush=True)
 
     user_id = request.form.get("userId")
     report_name = request.form.get("reportName")
