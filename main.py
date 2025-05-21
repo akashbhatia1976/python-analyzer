@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify
 from openai_extract_fields_combined import analyze_pdf
 import os
@@ -6,14 +5,10 @@ import os
 app = Flask(__name__)
 
 @app.route("/analyze", methods=["POST"])
-
-
-
-@app.route("/analyze", methods=["POST"])
 def analyze():
     print("🟡 HIT /analyze endpoint", flush=True)
 
-    # 👇 Access form FIRST before handling the file
+    # 👇 Parse form data
     form_data = request.form.to_dict()
     print(f"📬 Full request.form: {form_data}", flush=True)
 
@@ -37,6 +32,6 @@ def analyze():
         print(f"❌ Exception in /analyze: {str(e)}", flush=True)
         return jsonify({ "error": str(e) }), 500
 
-
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
+

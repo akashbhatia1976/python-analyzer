@@ -3,27 +3,15 @@ import json
 import re
 import requests
 import tempfile
-from datetime import datetime, timezone
+from datetime import datetime, date
 from pdf2image import convert_from_path
 import pytesseract
 from dotenv import load_dotenv
-from pymongo import MongoClient
 
-from bson import ObjectId
-from datetime import date
-
-def scrub(o):
-    """Convert anything the json module can’t handle."""
-    if isinstance(o, ObjectId):
-        return str(o)
-    if isinstance(o, (datetime, date)):
-        return o.isoformat()
-    raise TypeError  # let json.dumps complain about anything else
-
-
+# --- Load environment
 load_dotenv()
 
-# Load synonym and category mappings
+# --- Synonym & Category Mappings
 with open("data/synonyms.json", "r") as f:
     nested_synonyms = json.load(f)
 
@@ -110,10 +98,6 @@ def analyze_with_openai(text):
         response.raise_for_status()
         raw_json = response.json()
 
-        # Save raw OpenAI response
-       # with open("debug_openai_response.json", "w") as f:
-      #      json.dump(raw_json, f, indent=2)
-
         content = raw_json.get("choices", [])[0].get("message", {}).get("content", "").strip()
         if not content:
             raise ValueError("Empty content in OpenAI response.")
@@ -189,70 +173,8 @@ def validate_response(resp):
         flat, unmatched = flatten_nested_parameters(resp["Medical Parameters"])
     return resp, flat
 
-def clean_and_parse_range(range_str):
-    try:
-        parts = range_str.replace(",", "").split("-")
-        if len(parts) == 2:
-            return float(parts[0].strip()), float(parts[1].strip())
-    except:
-        return None, None
-    return None, None
-
-# --- MongoDB
-MONGO_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
-client = MongoClient(MONGO_URI)
-db = client["medicalReportsTestDB"]
-
-def save_to_mongo(user_id, report_name, resp, flat, report_date=None):
-
-    print(f"🛠️ Incoming report_date = {report_date}", flush=True)
-
-    now = datetime.now(timezone.utc)
-    abnormal_params = []
-
-    for p in flat:
-        val, rng = p.get("value"), p.get("referenceRange")
-        if val is not None and isinstance(rng, str) and "-" in rng:
-            low, high = clean_and_parse_range(rng)
-            if low is not None and (val < low or val > high):
-                abnormal_params.append(p)
-
-    try:
-        parsed_date = datetime.fromisoformat(report_date)
-    except Exception:
-        parsed_date = now
-        
-    print(f"📅 Parsed report_date = {parsed_date}", flush=True)
-
-
-    report_data = {
-        "userId": user_id,
-        "fileName": report_name,
-        "timestamp": now,
-        "date": parsed_date,
-        "extractedParameters": flat,
-        "abnormalCount": len(abnormal_params),
-        "abnormalParameters": abnormal_params
-    }
-    report_id = db.reports.insert_one(report_data).inserted_id
-
-    for p in flat:
-        p["reportId"] = report_id
-        p["userId"] = user_id
-        p["healthId"] = f"AETHER-{user_id.upper()}"
-        if not p.get("category"):
-            p["category"] = "Unmatched"
-   # db.parameters.insert_many(flat)
-    db.parameters.insert_many([p.copy() for p in flat])  # ← new, no in-place mutation
-
-
-    print(f"✅ Inserted {report_name} | {len(flat)} parameters | Abnormal: {len(abnormal_params)}")
-
-    return report_id
-    
 # --- Main runner
 def analyze_pdf(path, user_id, report_name=None, report_date=None):
-
     text = extract_text_from_pdf(path)
     ai_resp = analyze_with_openai(text)
     if not ai_resp:
@@ -260,55 +182,26 @@ def analyze_pdf(path, user_id, report_name=None, report_date=None):
         return
     full, flat = validate_response(ai_resp)
 
-    # Save flattened parameters for debug
-    #with open("debug_flat_parameters.json", "w") as f:
-    #    json.dump(flat, f, indent=2)
-
-    report_id = save_to_mongo(user_id, report_name or os.path.basename(path), full, flat, report_date)
-    
-  
-
-    # Convert reportId to string in flat parameters
-    for p in flat:
-        if isinstance(p.get("reportId"), ObjectId):
-            p["reportId"] = str(p["reportId"])
-
     return {
-        "reportId": str(report_id),
         "parameters": flat,
         "extractedParameters": full.get("Medical Parameters", {})
     }
 
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) < 2:
-        print("Usage: python script.py <pdf_path> [userId] [fileName]")
-        exit(1)
-
-    
     if len(sys.argv) < 3:
-        print("❌ Missing required userId argument.")
+        print("Usage: python script.py <pdf_path> <userId> [fileName] [reportDate]")
         exit(1)
-    pdf  = sys.argv[1]
-    uid = sys.argv[2]
 
+    pdf = sys.argv[1]
+    uid = sys.argv[2]
     name = sys.argv[3] if len(sys.argv) > 3 else os.path.basename(pdf)
     report_date = sys.argv[4] if len(sys.argv) > 4 else None
 
     result = analyze_pdf(pdf, uid, name, report_date)
 
     if result:
-        print(json.dumps({
-            "parameters": result["parameters"],
-            "extractedParameters": result["extractedParameters"]
-        }, default=scrub))
+        print(json.dumps(result, default=str))
     else:
-        print(json.dumps({
-            "parameters": [],
-            "extractedParameters": {}
-        }, default=scrub))
-
-
-
-
+        print(json.dumps({ "parameters": [], "extractedParameters": {} }))
 
