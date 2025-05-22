@@ -52,47 +52,58 @@
     "MPV": ["mean platelet volume", "mpv"],
     "PDW": ["platelet distribution width", "pdw"],
     "RBC Morphology": ["rbc morphology"],
-    "WBC Morphology": ["wbc morphology", "white blood cell morphology"]
+    "WBC Morphology": ["wbc morphology", "white blood cell morphology"],
+    "Band Forms": ["Band form", "band forms", "band neutrophils"]
   },
   "Kidney Function Tests": {
     "BUN": ["blood urea nitrogen", "bun", "Bun, Serum", "BUN, Serum"],
     "Creatinine": ["creatinine", "Creatinine, Serum", "CREATININE, Serum"],
     "eGFR": ["estimated glomerular filtration rate", "egfr", "eGFR, Serum"],
-    "Total Proteins": ["total proteins", "total proteins, serum", "protein", "total protien", "Total Protein"],
-    "Albumin": ["albumin", "ALBUMIN, Serum", "Albumin, Serum"],
-    "Globulin": ["globulin"],
+    "Total Proteins": ["total proteins", "total proteins, serum", "protein", "total protien", "Total Protein", "S. Total Protien", "S. Total Protien"],
+    "Albumin": ["albumin", "ALBUMIN, Serum", "Albumin, Serum", "S. Albumin"],
+    "Globulin": ["globulin", "S. Globulin"],
     "A/G Ratio": ["albumin/globulin ratio", "a/g ratio", "a/g ratio serum", "a/g ratio, serum"],
-    "Uric Acid": ["uric acid", "uric acid", "uric acid, serum"],
+    "Uric Acid": ["uric acid", "uric acid", "uric acid, serum", "S. Uric Acid"],
     "Phosphorus": ["phosphorus", "PHOSPHORUS, Serum", "Phosphorus, Serum", "Phosphorus, SERUM"],
-    "Calcium": ["calcium", "Calcium, Serum", "CALCIUM, SERUM", "Calcium, SERUM", "Serum ionized calcium (pH 7.4) level", "CALCIUM, IONIZED, SERUM"],
+    "Calcium": [
+        "calcium",
+        "Calcium, Serum",
+        "CALCIUM, SERUM",
+        "Calcium, SERUM",
+        "Serum ionized calcium (pH 7.4) level",
+        "ionised calcium",
+        "ionised calcium, serum",
+        "ionised calcium (serum)",
+        "lonised calcium",
+        "CALCIUM, IONIZED, SERUM"
+    ],
     "Sodium": ["sodium", "sodium, serum"],
-    "Potassium": ["potassium", "Potassium, Serum", "POTASSIUM, SERUM"],
+    "Potassium": ["potassium", "Potassium, Serum", "POTASSIUM, SERUM", "Potasium"],
     "Chloride": ["chloride", "Chloride, Serum", "CHLORIDE, SERUM", "chloride, serum", "CHLORIDE, Serum", "chloride", "chloride serum"],
-    "Blood Urea": ["Blood Urea", "BLOOD UREA", "BLOOD UREA, SERUM", "Blood Urea, Serum", "blood urea", "urea", "blood urea,serum" ],
-    "Ionised Calcium, Serum": ["ionised calcium", "ionised calcium, serum", "ionised calcium (serum)", "lonised calcium"]
+    "Blood Urea": ["Blood Urea", "BLOOD UREA", "BLOOD UREA, SERUM", "Blood Urea, Serum", "blood urea", "urea", "blood urea,serum" ]
     
   },
   "Liver Function Tests": {
-    "Bilirubin Total": ["total bilirubin", "bilirubin", "bilirubin (total)", "bilirubin (total), serum", "bilirubin total"],
-    "Bilirubin Direct": ["direct bilirubin", "BILIRUBIN, Direct", "Bilirubin (Direct)", "BILIRUBIN (DIRECT), Serum", "Bilirubin (Direct), Serum" ],
-    "Bilirubin Indirect": ["indirect bilirubin", "BILIRUBIN, Indirect", "Bilirubin (Indirect)", "BILIRUBIN (INDIRECT)", "BILIRUBIN (INDIRECT), Serum", "Bilirubin (Indirect), Serum"],
-    "SGOT (AST)": ["sgot (ast)", "sgot (ast), serum", "ast", "sgot"],
-    "SGPT (ALT)": ["sgpt (alt)", "sgpt (alt), serum", "alt", "sgpt"],
+    "Bilirubin Total": ["total bilirubin", "bilirubin", "bilirubin (total)", "bilirubin (total), serum", "bilirubin total", "S.Total Billirubin", "S. Total Bilirubin", "S.Total Bilirubin"],
+    "Bilirubin Direct": ["direct bilirubin", "BILIRUBIN, Direct", "Bilirubin (Direct)", "BILIRUBIN (DIRECT), Serum", "Bilirubin (Direct), Serum", "S.Direct Billirubin", "S. Direct Bilirubin", "S.Direct Bilirubin"],
+    "Bilirubin Indirect": ["indirect bilirubin", "BILIRUBIN, Indirect", "Bilirubin (Indirect)", "BILIRUBIN (INDIRECT)", "BILIRUBIN (INDIRECT), Serum", "Bilirubin (Indirect), Serum", "S.Indirect Billirubin", "S. Indirect Bilirubin", "S.Indirect Bilirubin"],
+    "SGOT (AST)": ["sgot (ast)", "sgot (ast), serum", "ast", "sgot", "S.G.O.T."],
+    "SGPT (ALT)": ["sgpt (alt)", "sgpt (alt), serum", "alt", "sgpt", "S.ALT (S.G.P.T.)"],
     "Gamma GT": ["ggt", "gamma glutamyl transferase", "gamma gt", "gamma gt, serum"],
-    "Alkaline Phosphatase": ["alkaline phosphatase, serum", "alp (alkaline phosphatase)", "alp", "alkaline phosphatase"],
-    "GLOBULIN": ["globulin", "globulin serum", "globulin, serum"],
-    "Albumin": ["albumin", "albumin serum"]
+    "Alkaline Phosphatase": ["alkaline phosphatase, serum", "alp (alkaline phosphatase)", "alp", "alkaline phosphatase", "S.Alkaline Phosphatase"],
+    "GLOBULIN": ["globulin", "globulin serum", "globulin, serum", "S.Globulin"],
+    "Albumin": ["albumin", "albumin serum", "S.Albumin"]
   },
   "Iron Studies": {
     "IRON": ["iron", "Iron", "IRON, Serum"],
-    "UIBC": ["unsaturated iron-binding capacity", "uibc", "uibc (measured)", "UIBC (measured), Serum"],
-    "TIBC": ["total iron-binding capacity", "tibc", "total iron binding capacity (tibc)", "TOTAL IRON BINDING CAPACITY (TIBC), Serum"],
+    "UIBC": ["unsaturated iron-binding capacity", "uibc", "uibc (measured)", "UIBC (measured), Serum", "uibc serum", "uibc (measured), serum"],
+    "TIBC": ["total iron-binding capacity", "tibc", "total iron binding capacity (tibc)", "TOTAL IRON BINDING CAPACITY (TIBC), Serum", "tibc serum", "total iron binding capacity (tibc), serum"],
     "Transferrin": ["transferrin", "TRANSFERRIN, Serum"],
     "Transferrin Saturation": ["transferrin sat", "transferrin saturation", "TRANSFERRIN SATURATION, Serum"],
     "FERRITIN": ["ferritin", "ferritin test", "ferritin level", "FERRITIN", "Ferritin", "ferritin levels", "FERRITIN, Serum"]
   },
   "CRP-Quantitative Test": {
-    "CRP-Quantitative": ["crp quantitative", "crp", "CRP-Quantitative", "CRP-Quantitative, Serum", "crp-quantitative (serum)"]
+    "CRP-Quantitative": ["crp quantitative", "crp", "CRP-Quantitative", "CRP-Quantitative, Serum", "crp-quantitative (serum)", "CRP - Quantitative (serum)"]
   },
   "Ionised Calcium": {
     "Ionised Calcium, Serum": ["ionised calcium", "ionized calcium"]
@@ -108,20 +119,22 @@
   },
   "Urine Examination": {
     "Reaction": ["reaction", "Reaction (ph)", "reaction (pH)", "reaction pH", "Reaction (pH)"],
-    "Specific Gravity": ["specific gravity", "Specific Gravity", "Specific gravity"],
+    "Specific Gravity": ["specific gravity", "Specific Gravity", "Specific gravity", "Urine Specific Gravity"],
     "Pus Cells": ["Pus cells", "Pus cells /hpf", "Pus Cells hpf", "pus cells /hpf"],
     "Epithelial cells": ["epithelial cells", "Epithelial cells /hpf"],
-    "Urine Red Blood Cells": ["Red Blood Cells /hpf", "red blood cells /hpf", "Red blood cells /hpf"]
+    "Urine Red Blood Cells": ["Red Blood Cells /hpf", "red blood cells /hpf", "Red blood cells /hpf"],
+    "Urine pH": ["Urine pH"],
+    "Urine Proteins": ["Urine Proteins"]
   },
   "Cholesterol Tests": {
       "Total Cholesterol": ["total cholesterol"],
-      "HDL Cholesterol": ["hdl cholesterol", "S.HDL Cholesterol"],
+      "HDL Cholesterol": ["hdl cholesterol", "S.HDL Cholesterol", "hdl cholesterol serum", "s.hdl cholesterol"],
       "LDL Cholesterol": ["ldl cholesterol", "VLDL cholesterol measurement"],
-      "Triglycerides": ["triglycerides", "Serum VLDL triglyceride measurement"],
+      "Triglycerides": ["triglycerides", "Serum VLDL triglyceride measurement", "serum triglycerides"],
       "Serum Cholesterol": [
-        "Serum cholesterol studies"],
+        "Serum cholesterol studies", "serum cholesterol"],
       "Non HDL Cholesterol": [
-        "non-HDL cholesterol panel"],
+        "non-HDL cholesterol panel", "non-hdl", "non hdl cholesterol"],
       "CHOL/HDL Chol (Ratio)": [
           "CHOL/HDL Chol (Ratio)",
             "CHOL/HDL CHOL(Ratio)",
@@ -129,7 +142,8 @@
       ],
       "LDL CHOL/HDL Ratio": [
         "LDL CHOL/HDL Ratio"
-      ]
+      ],
+      "VLDL Cholesterol": ["vldl cholesterol"]
   },
   "Thyroid Profile": {
     "TSH": ["tsh"],
@@ -137,17 +151,17 @@
     "T4": ["t4"]
   },
   "Blood Sugar": {
-    "Fasting Blood Sugar": ["fasting blood sugar", "Plasma fasting glucose measurement", "Fasting Plasma Glucose"],
-    "Postprandial Blood Sugar": ["postprandial blood sugar", "Plasma 2-hr post-prandial glucose measurement", "Post Prandial Plasma Glucose"]
+    "Fasting Blood Sugar": ["fasting blood sugar", "Plasma fasting glucose measurement", "Fasting Plasma Glucose", "fasting glucose", "fpg", "fasting plasma glucose"],
+    "Postprandial Blood Sugar": ["postprandial blood sugar", "Plasma 2-hr post-prandial glucose measurement", "Post Prandial Plasma Glucose", "ppg", "postprandial glucose", "post prandial plasma glucose"]
   },
   "Coagulation": {
       "INR": ["inr"],
-      "PTT": ["ptt"],
-      "Prothrombin Time": ["prothrombin time"],
-      "Prothrombin Ratio": ["prothrombin ratio"]
+      "PTT": ["ptt", "Prothrombin Time Test"],
+      "Prothrombin Time": ["prothrombin time", "Mean Normal Prothrombin Time"],
+      "Prothrombin Ratio": ["prothrombin ratio", "Protrombin Index", "Protrombin Ratio"]
   },
   "Cardiac Markers": {
-      "NT-proBNP": ["nt-probnp", "nt-probnp (serum)", "NT-proBNP, Serum"]
+      "NT-proBNP": ["nt-probnp", "nt-probnp (serum)", "NT-proBNP, Serum", "nt-probnp serum", "nt-probnp, serum"]
     },
   "Others": {
     "pH": ["ph"],   
@@ -172,7 +186,10 @@
       "hepatitis 'b' surface antigen (hbsag), serum",
       "hepatitis 'b' surface antigen (hbsag)",
       "hbsag", "hb sag", "hep b surface antigen",
-      "hepatitis b surface ag", "hbsag serum", "hbsag test"
+      "hepatitis b surface ag", "hbsag serum", "hbsag test",
+      "Hepatitis 'B' Surface Antigen (HBsAg), Serum",
+      "HEPATITIS B SURFACE ANTIGEN (HBsAg)",
+      "HEPATITIS B SURFACE ANTIGEN (HBsAg)"
     ]
   },
   "Hepatitis C Virus Antibodies": {
@@ -180,7 +197,7 @@
       "hcv serum",
       "hcv  serum",
       "anti hcv", "hcv antibodies", "hcv ab",
-      "anti-hcv antibody", "anti hcv serum", "anti-hcv ab test"
+      "anti-hcv antibody", "anti hcv serum", "anti-hcv ab test", "HCV Serum"
     ]
   },
   "HIV Tests": {
@@ -193,9 +210,6 @@
       "hiv 1 p24 antigen",
       "hiv combo test"
     ]
-  },
-  "Band Forms": {
-    "Band Forms": ["Band form"]
   },
   
   "Salmonella":{
