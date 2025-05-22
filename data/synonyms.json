@@ -2,7 +2,7 @@
   "CBC (Complete Blood Count)": {
     "Haemoglobin": ["hb", "hgb", "hemoglobin", "haemoglobin"],
     "RBC": ["red blood cells", "rbc", "Total R.B.C. Count", "RBC count"],
-    "PCV": ["packed cell volume", "pcv"],
+    "PCV": ["packed cell volume", "pcv", "PCV/HCT"],
     "MCV": ["mean corpuscular volume", "mcv"],
     "MCH": ["mean corpuscular hemoglobin", "mch"],
     "MCHC": ["mean corpuscular hemoglobin concentration", "mchc"],
@@ -13,13 +13,15 @@
     "Absolute Lymphocytes": [
       "absolute lymphocytes",
       "absolute lymphocyte count",
-      "abs lymphs"
+      "abs lymphs",
+      "Absolute CD8 lymphocytes decreased"
     ],
     "Monocytes": ["monocytes (%)", "monos", "Monocytes"],
     "Absolute Monocytes": [
       "absolute monocytes",
       "absolute monocyte count",
-      "abs monos"
+      "abs monos",
+      "Absolute monocyte count"
     ],
     "Neutrophils": ["neutrophils (%)", "neuts", "Neutrophils"],
     "Absolute Neutrophils": [
@@ -27,21 +29,24 @@
         "absolute neutrophil count",
         "abs neutrophils",
         "abs neutrophil",
-        "absolute neutrophils (cells/µl)"
+        "absolute neutrophils (cells/µl)",
+        "Absolute neutrophil count"
       ],
     "Eosinophils": ["eosinophils (%)", "eos", "Eosinophils"],
     "Absolute Eosinophils": [
       "absolute eosinophils",
       "absolute eosinophil count",
       "abs eos",
-      "abs eosinophils"
+      "abs eosinophils",
+      "Absolute Eosinophil Count"
     ],
     "Basophils": ["basophils (%)", "basos", "Basophils"],
     "Absolute Basophils": [
       "absolute basophils",
       "absolute basophil count",
       "abs basophils",
-      "absolute basophils (cells/µl)"
+      "absolute basophils (cells/µl)",
+      "Body Fluid Absolute Basophil Counts"
     ],
     "Platelet Count": ["platelets", "platelet count", "platelet counts"],
     "MPV": ["mean platelet volume", "mpv"],
@@ -59,7 +64,7 @@
     "A/G Ratio": ["albumin/globulin ratio", "a/g ratio", "a/g ratio serum", "a/g ratio, serum"],
     "Uric Acid": ["uric acid", "uric acid", "uric acid, serum"],
     "Phosphorus": ["phosphorus", "PHOSPHORUS, Serum", "Phosphorus, Serum", "Phosphorus, SERUM"],
-    "Calcium": ["calcium", "Calcium, Serum", "CALCIUM, SERUM", "Calcium, SERUM"],
+    "Calcium": ["calcium", "Calcium, Serum", "CALCIUM, SERUM", "Calcium, SERUM", "Serum ionized calcium (pH 7.4) level", "CALCIUM, IONIZED, SERUM"],
     "Sodium": ["sodium", "sodium, serum"],
     "Potassium": ["potassium", "Potassium, Serum", "POTASSIUM, SERUM"],
     "Chloride": ["chloride", "Chloride, Serum", "CHLORIDE, SERUM", "chloride, serum", "CHLORIDE, Serum", "chloride", "chloride serum"],
@@ -110,9 +115,21 @@
   },
   "Cholesterol Tests": {
       "Total Cholesterol": ["total cholesterol"],
-      "HDL Cholesterol": ["hdl cholesterol"],
-      "LDL Cholesterol": ["ldl cholesterol"],
-      "Triglycerides": ["triglycerides"]
+      "HDL Cholesterol": ["hdl cholesterol", "S.HDL Cholesterol"],
+      "LDL Cholesterol": ["ldl cholesterol", "VLDL cholesterol measurement"],
+      "Triglycerides": ["triglycerides", "Serum VLDL triglyceride measurement"],
+      "Serum Cholesterol": [
+        "Serum cholesterol studies"],
+      "Non HDL Cholesterol": [
+        "non-HDL cholesterol panel"],
+      "CHOL/HDL Chol (Ratio)": [
+          "CHOL/HDL Chol (Ratio)",
+            "CHOL/HDL CHOL(Ratio)",
+            "CHOL/HDL Chol(Ratio)"
+      ],
+      "LDL CHOL/HDL Ratio": [
+        "LDL CHOL/HDL Ratio"
+      ]
   },
   "Thyroid Profile": {
     "TSH": ["tsh"],
@@ -120,8 +137,8 @@
     "T4": ["t4"]
   },
   "Blood Sugar": {
-    "Fasting Blood Sugar": ["fasting blood sugar"],
-    "Postprandial Blood Sugar": ["postprandial blood sugar"]
+    "Fasting Blood Sugar": ["fasting blood sugar", "Plasma fasting glucose measurement", "Fasting Plasma Glucose"],
+    "Postprandial Blood Sugar": ["postprandial blood sugar", "Plasma 2-hr post-prandial glucose measurement", "Post Prandial Plasma Glucose"]
   },
   "Coagulation": {
       "INR": ["inr"],
@@ -176,6 +193,25 @@
       "hiv 1 p24 antigen",
       "hiv combo test"
     ]
+  },
+  "Band Forms": {
+    "Band Forms": ["Band form"]
+  },
+  
+  "Salmonella":{
+      "Salmonella typhi 'H'": [
+        "Salmonella enterica subspecies enterica serovar Typhi H antibody"
+      ],
+      "Salmonella paratyphi 'AH'": [
+        "Salmonella paratyphi 'AH'"
+      ],
+      "Salmonella paratyphi 'BH'": [
+        "Salmonella paratyphi 'BH'"
+        ]
+  },
+  "Dengue":{
+      "Dengue NS1 Antigen": [
+        "Dengue NS1 antigen test"]
   }
 
 }
