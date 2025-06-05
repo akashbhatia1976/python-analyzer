@@ -38,6 +38,11 @@ app = FastAPI(
     version="0.1.0",
 )
 
+# Add this root route so HEAD / or GET / returns 200 instead of 404
+@app.get("/")
+async def root():
+    return {"message": "Aether AI service is running"}
+
 # ------------------------------------------------------------------------------
 # 3) Request & Response Models
 # ------------------------------------------------------------------------------
