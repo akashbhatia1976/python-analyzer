@@ -79,11 +79,13 @@ def dicom_s3_to_jpeg_bytes(dicom_key: str) -> bytes:
     3) Normalize to 8-bit grayscale.
     4) Write to JPEG via Pillow, returning raw bytes.
     """
+    print(f"🔎 Python: fetching from S3 bucket={S3_BUCKET_NAME}, key={dicom_key}")
     try:
         obj = s3.get_object(Bucket=S3_BUCKET_NAME, Key=dicom_key)
     except s3.exceptions.NoSuchKey:
+        print(f"❌ Python: S3 returned NoSuchKey for bucket={S3_BUCKET_NAME}, key={dicom_key}")
         raise HTTPException(status_code=404, detail=f"DICOM not found: {dicom_key}")
-
+    
     dicom_bytes = obj["Body"].read()
     dataset = pydicom.dcmread(io.BytesIO(dicom_bytes))
     pixel_array = dataset.pixel_array  # NumPy array (e.g., 4096×4096 16-bit for CT)
