@@ -1,0 +1,27 @@
+# ---------- DICOM ➜ JPEG FastAPI service ------------------------------------
+FROM python:3.11-slim
+
+# ---- native libs needed by Pillow & pydicom --------------------------------
+RUN apt-get update && \
+    apt-get install -y \
+        libjpeg-dev zlib1g-dev libpng-dev --no-install-recommends && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# ---- copy only what the service needs --------------------------------------
+WORKDIR /app
+
+# requirements first (for layer-cache)
+COPY requirements.txt .
+
+# If you keep separate req-files, you can COPY requirements-dicom.txt instead
+RUN pip install --upgrade pip && pip install -r requirements.txt
+
+# app code
+COPY dicom2jpeg.py ./
+
+# (Optional) utils/
+# COPY utils ./utils
+
+EXPOSE 8080
+
+CMD ["uvicorn", "dicom2jpeg:app", "--host", "0.0.0.0", "--port", "8080"]
