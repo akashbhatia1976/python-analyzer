@@ -1,28 +1,21 @@
-# ---------- PDF / OpenAI extractor image -----------------------------
+
 FROM python:3.11-slim
 
-# ---- system packages needed by pdf2image / poppler / tesseract -------
+# System dependencies
 RUN apt-get update && \
-    apt-get install -y \
-        tesseract-ocr \
-        libtesseract-dev \
-        poppler-utils  \
-        libjpeg-dev zlib1g-dev && \
+    apt-get install -y tesseract-ocr libtesseract-dev poppler-utils && \
     apt-get clean
 
-# ---- copy only the files this service needs --------------------------
+# Set working directory
 WORKDIR /app
 
-#   1. requirements
+# Copy app files
+COPY . .
+
+# Install Python dependencies
 COPY requirements.txt .
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
 
-#   2. code + JSON mapping files
-COPY main.py openai_extract_fields_combined.py ./
-COPY data ./data                 # <-- include the JSONs!
-
-RUN pip install --upgrade pip && pip install -r requirements.txt
-
-# ---- expose the Flask port ------------------------------------------
-EXPOSE 8081
-
+# Start Flask app
 CMD ["python", "main.py"]
