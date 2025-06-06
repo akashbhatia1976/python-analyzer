@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-# ----------------------------------------------------------------
+# ------------------------------------------------------------
 # ai_worker.py  –  Annotate radiology previews with OpenAI GPT-4o(Vision)
-# ----------------------------------------------------------------
-
+# ------------------------------------------------------------
 import os
 import io
 import json
@@ -20,15 +19,12 @@ from pymongo import MongoClient
 from bson import ObjectId
 
 # --------------------  CONFIG  --------------------------------
-# Pull your OpenAI API key from the environment
 openai.api_key   = os.getenv("OPENAI_API_KEY")
 
-# MongoDB settings (rename env var to MONGODB_URI if you changed it)
 MONGO_URI        = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
-DB_NAME          = os.getenv("MONGO_DB", "medicalReportsTestDB")
-COLL             = "imagingStudies"
+DB_NAME          = os.getenv("MONGODB_DB", "medicalReportsTestDB")
+COLL             = os.getenv("MONGODB_COLLECTION", "imagingStudies")
 
-# S3 / AWS settings
 AWS_REGION       = os.getenv("S3_REGION")
 S3_BUCKET        = os.getenv("S3_BUCKET_NAME")
 s3               = boto3.client(
@@ -38,14 +34,9 @@ s3               = boto3.client(
     aws_secret_access_key = os.getenv("S3_SECRET_ACCESS_KEY"),
 )
 
-# Which GPT‐4o model to use
-MODEL            = os.getenv("OPENAI_VISION_MODEL", "gpt-4o-mini")  # or "gpt-4o"
-
-# Font settings for drawing captions
+MODEL            = os.getenv("OPENAI_VISION_MODEL", "gpt-4o-mini")  # or gpt-4o
 FONT_PATH        = os.getenv("CAPTION_FONT", "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")
-FONT_SIZE        = int(os.getenv("CAPTION_FONT_SIZE", "20"))
-
-# How often (in seconds) to poll MongoDB for new analysis requests
+FONT_SIZE        = 20
 POLL_INTERVAL    = int(os.getenv("WORKER_POLL_SECONDS", "10"))
 
 # --------------------  DB  ------------------------------------
@@ -53,20 +44,10 @@ mongo  = MongoClient(MONGO_URI)
 coll   = mongo[DB_NAME][COLL]
 
 # ------------------------------------------------------------
-# 1.  OpenAI – per-image analysis
+# 1.  OpenAI - per-image analysis
 # ------------------------------------------------------------
 def analyse_image(url: str) -> Dict[str, Any]:
-    """
-    Sends a single-image analysis request to OpenAI Vision (GPT‐4o).
-    Expects a JSON response containing:
-      {
-        "caption": "...",
-        "findings": [
-          { "observation": "...", "possibleConditions": ["...", "..."] },
-          ...
-        ]
-      }
-    """
+    """Returns JSON: { caption:str, findings:[{observation, possibleConditions:[..]}] }"""
     resp = openai.chat.completions.create(
         model       = MODEL,
         max_tokens  = 400,
@@ -101,19 +82,12 @@ def analyse_image(url: str) -> Dict[str, Any]:
         ],
         response_format={"type": "json_object"},
     )
-    parsed = json.loads(resp.choices[0].message.content)
-    return parsed
-
+    return json.loads(resp.choices[0].message.content)
 
 # ------------------------------------------------------------
-# 2.  Draw caption onto the JPEG
+# 2.  Draw caption on JPEG
 # ------------------------------------------------------------
 def draw_caption(jpeg_bytes: bytes, caption: str) -> bytes:
-    """
-    Takes raw JPEG bytes and a caption string,
-    draws the caption onto the bottom of the image (white text with black outline),
-    then returns new JPEG bytes.
-    """
     img   = Image.open(io.BytesIO(jpeg_bytes)).convert("RGB")
     draw  = ImageDraw.Draw(img)
     try:
@@ -125,26 +99,22 @@ def draw_caption(jpeg_bytes: bytes, caption: str) -> bytes:
     w, h    = draw.multiline_textsize(wrapped, font=font)
     x, y    = 10, img.height - h - 10
 
-    # Draw a simple black outline behind white text for readability
+    # black outline
     draw.multiline_text((x-1, y-1), wrapped, font=font, fill="black")
     draw.multiline_text((x+1, y-1), wrapped, font=font, fill="black")
     draw.multiline_text((x-1, y+1), wrapped, font=font, fill="black")
     draw.multiline_text((x+1, y+1), wrapped, font=font, fill="black")
-    draw.multiline_text((x,   y),   wrapped, font=font, fill="white")
+    # white text
+    draw.multiline_text((x, y), wrapped, font=font, fill="white")
 
     out = io.BytesIO()
     img.save(out, format="JPEG", quality=90)
     return out.getvalue()
 
-
 # ------------------------------------------------------------
 # 3.  Aggregate study-level summary
 # ------------------------------------------------------------
 def summarise_study(findings_arrays: List[List[Dict[str, Any]]]) -> str:
-    """
-    Given a list of “findings” arrays (one per image),
-    ask GPT‐4o to write a concise layperson-friendly report (≤150 words).
-    """
     prompt_json = json.dumps(findings_arrays, indent=2)
     resp = openai.chat.completions.create(
         model       = MODEL,
@@ -169,102 +139,68 @@ def summarise_study(findings_arrays: List[List[Dict[str, Any]]]) -> str:
     )
     return resp.choices[0].message.content.strip()
 
-
 # ------------------------------------------------------------
 # 4.  Main study processor
 # ------------------------------------------------------------
 def process_study(study: dict) -> None:
-    """
-    For one study document:
-      1) Skip URLs already processed (via enhancedCaptions)
-      2) For each new URL:
-         a) Download JPEG
-         b) Analyse with OpenAI → (caption + findings[])
-         c) Draw caption onto JPEG
-         d) Upload annotated JPEG to S3 (under 'annotated/<userId>/...jpg')
-         e) Record annotated URL, raw analysis, timestamp
-      3) If at least one new image was processed:
-         • Ask GPT‐4o to summarise all findings across images
-         • Push enhancedCaptions and annotated URLs + update aggregateSummary in MongoDB
-    """
     study_id = str(study["_id"])
     user_id  = study["userId"]
     print(f"[{datetime.utcnow().isoformat()}] ➜  Processing study {study_id}")
 
-    already_done = {
-        entry["url"]
-        for entry in study.get("aiInterpretation", {}).get("enhancedCaptions", [])
-    }
+    # ---- collect URLs already analysed so we skip duplicates
+    already_done = { au["url"] for au in study.get("aiInterpretation", {}).get("enhancedCaptions", []) }
 
-    new_captions   = []  # will hold {url, caption, raw, annotatedUrl, timestamp}
-    findings_lists = []
+    new_captions   = []        # [{url, caption, raw, annotatedUrl}]
+    findings_lists = []        # list of findings[] arrays
 
     for url in study["imageUrls"]:
         if url in already_done:
             continue
 
-        # ---- 1) Download JPEG from presigned URL
-        try:
-            img_resp = requests.get(url, timeout=30)
-            img_resp.raise_for_status()
-            jpeg_bytes = img_resp.content
-        except Exception as e:
-            print(f"❌ Failed to download {url}: {e}")
-            continue
+        # 1) Download JPEG
+        img_resp = requests.get(url, timeout=30)
+        img_resp.raise_for_status()
+        jpeg_bytes = img_resp.content
 
-        # ---- 2) Analyse with OpenAI
-        try:
-            analysis   = analyse_image(url)
-            caption    = analysis["caption"]
-            findings   = analysis["findings"]
-            findings_lists.append(findings)
-        except Exception as e:
-            print(f"❌ OpenAI analysis failed for {url}: {e}")
-            continue
+        # 2) Analyse with OpenAI
+        analysis   = analyse_image(url)
+        caption    = analysis["caption"]
+        findings_lists.append(analysis["findings"])
 
-        # ---- 3) Draw caption onto JPEG
-        annotated_bytes = draw_caption(jpeg_bytes, caption)
+        # 3) Draw caption → annotated JPEG
+        annotated  = draw_caption(jpeg_bytes, caption)
 
-        # ---- 4) Upload annotated JPEG to S3
-        ts  = int(time.time() * 1000)
-        key = f"annotated/{user_id}/{ts}.jpg"
-        try:
-            s3.put_object(
-                Bucket      = S3_BUCKET,
-                Key         = key,
-                Body        = annotated_bytes,
-                ContentType = "image/jpeg",
-                ACL         = "private",
-            )
-            annotated_url = s3.generate_presigned_url(
-                "get_object",
-                Params   = {"Bucket": S3_BUCKET, "Key": key},
-                ExpiresIn = 3600,
-            )
-        except Exception as e:
-            print(f"❌ S3 upload failed for annotated image {key}: {e}")
-            continue
+        # 4) Upload annotated
+        ts         = int(time.time() * 1000)
+        key        = f"annotated/{user_id}/{ts}.jpg"
+        s3.put_object(
+            Bucket      = S3_BUCKET,
+            Key         = key,
+            Body        = annotated,
+            ContentType = "image/jpeg",
+            ACL         = "private",
+        )
+        annotated_url = s3.generate_presigned_url(
+            "get_object",
+            Params  = {"Bucket": S3_BUCKET, "Key": key},
+            ExpiresIn = 3600,
+        )
 
         new_captions.append({
-            "url":           url,
-            "caption":       caption,
-            "raw":           analysis,
-            "annotatedUrl":  annotated_url,
-            "timestamp":     datetime.utcnow()
+            "url": url,
+            "caption": caption,
+            "raw": analysis,
+            "annotatedUrl": annotated_url,
+            "timestamp": datetime.utcnow()
         })
 
     if not new_captions:
         print("No new images to annotate.")
         return
 
-    # ---- 5) Aggregate study‐level summary (only if at least one new image)
-    try:
-        agg_summary = summarise_study(findings_lists)
-    except Exception as e:
-        print(f"❌ Summarisation failed: {e}")
-        agg_summary = ""
+    # ---- Build / update interpretation blob
+    agg_summary = summarise_study(findings_lists)
 
-    # ---- 6) Write everything back to MongoDB
     coll.update_one(
         {"_id": ObjectId(study_id)},
         {
@@ -273,49 +209,37 @@ def process_study(study: dict) -> None:
                 "imageUrls": {"$each": [c["annotatedUrl"] for c in new_captions]}
             },
             "$set": {
-                "aiInterpretation.aggregateSummary":   agg_summary,
-                "aiInterpretation.updatedAt":          datetime.utcnow()
+                "aiInterpretation.aggregateSummary": agg_summary,
+                "aiInterpretation.updatedAt": datetime.utcnow()
             }
         }
     )
-    print(f"✅ Annotated {len(new_captions)} image(s) for study {study_id}")
-
+    print(f"✅  Annotated {len(new_captions)} image(s) for study {study_id}")
 
 # ------------------------------------------------------------
 # 5.  Polling loop
 # ------------------------------------------------------------
 def poll_forever() -> None:
-    """
-    Every POLL_INTERVAL seconds, find up to 5 studies that:
-      • analysisRequested == true
-      • have no aiInterpretation.enhancedCaptions yet
-    Then process each one.
-    """
     while True:
         try:
+            # grab studies that have DICOMKeys but no enhancedCaptions yet
             cursor = coll.find(
-                {
-                    "analysisRequested": True,
-                    "aiInterpretation.enhancedCaptions": {"$exists": False}
-                },
+                { "aiInterpretation.enhancedCaptions": { "$exists": False } },
                 sort=[("uploadedAt", 1)]
             ).limit(5)
 
-            studies_to_process = list(cursor)
-            if not studies_to_process:
+            to_process = list(cursor)
+            if not to_process:
                 time.sleep(POLL_INTERVAL)
                 continue
 
-            for s in studies_to_process:
+            for s in to_process:
                 process_study(s)
 
         except Exception as exc:
-            print(f"⚠️ Worker error: {exc}")
+            print("⚠️  Worker error:", exc)
             time.sleep(5)
-
 
 # ------------------------------------------------------------
 if __name__ == "__main__":
-    print(f"[{datetime.utcnow().isoformat()}] 🟢 ai_worker started, polling every {POLL_INTERVAL}s.")
     poll_forever()
-
