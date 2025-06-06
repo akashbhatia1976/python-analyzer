@@ -21,9 +21,9 @@ from bson import ObjectId
 # --------------------  CONFIG  --------------------------------
 openai.api_key   = os.getenv("OPENAI_API_KEY")
 
-MONGO_URI        = os.getenv("MONGO_URI", "mongodb://localhost:27017")
-DB_NAME          = os.getenv("MONGO_DB", "aether")
-COLL             = "imagingStudies"
+MONGO_URI        = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
+DB_NAME          = os.getenv("MONGODB_DB", "medicalReportsTestDB")
+COLL             = os.getenv("MONGODB_COLLECTION", "imagingStudies")
 
 AWS_REGION       = os.getenv("S3_REGION")
 S3_BUCKET        = os.getenv("S3_BUCKET_NAME")
