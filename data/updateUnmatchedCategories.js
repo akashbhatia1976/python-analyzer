@@ -3,7 +3,10 @@ const fs = require('fs');
 const path = require('path');
 
 // Config
-const uri = 'mongodb+srv://akashbhatia:OWbmii1dbyi9n7TD@medical-server.bh8ur.mongodb.net/medicalReportsTestDB?retryWrites=true&w=majority';
+const uri = process.env.MONGODB_URI;
+if (!uri) {
+  throw new Error("Missing MONGODB_URI environment variable");
+}
 const client = new MongoClient(uri);
 const dbName = 'medicalReportsTestDB';
 const collectionName = 'parameters';

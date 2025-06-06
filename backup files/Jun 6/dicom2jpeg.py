@@ -62,24 +62,22 @@ class Finding(BaseModel):
 
 class InterpretResponse(BaseModel):
     """
-    Sent back to Node: a list of findings, a confidence score, and a presigned JPEG preview URL.
+    Sent back to Node: a list of findings and a confidence score.
+    You can extend this with more fields (e.g. "narrative") as needed.
     """
     findings: list[Finding]
     confidence: float
-    previewUrl: str
 
 
 # ------------------------------------------------------------------------------
-# 4) Helper: Convert DICOM → JPEG Bytes AND Upload Preview to S3
+# 4) Helper: Convert DICOM → JPEG Bytes
 # ------------------------------------------------------------------------------
-def dicom_s3_to_jpeg_bytes_and_upload(dicom_key: str) -> str:
+def dicom_s3_to_jpeg_bytes(dicom_key: str) -> bytes:
     """
     1) Download the DICOM object from S3 (using its key).
     2) Load pixel data via pydicom.
     3) Normalize to 8-bit grayscale.
-    4) Write to JPEG via Pillow.
-    5) Upload that JPEG under 'previews/...' in S3.
-    6) Return a presigned URL for the uploaded JPEG.
+    4) Write to JPEG via Pillow, returning raw bytes.
     """
     print(f"🔎 Python: fetching from S3 bucket={S3_BUCKET_NAME}, key={dicom_key}")
     try:
@@ -87,7 +85,7 @@ def dicom_s3_to_jpeg_bytes_and_upload(dicom_key: str) -> str:
     except s3.exceptions.NoSuchKey:
         print(f"❌ Python: S3 returned NoSuchKey for bucket={S3_BUCKET_NAME}, key={dicom_key}")
         raise HTTPException(status_code=404, detail=f"DICOM not found: {dicom_key}")
-
+    
     dicom_bytes = obj["Body"].read()
     dataset = pydicom.dcmread(io.BytesIO(dicom_bytes))
     pixel_array = dataset.pixel_array  # NumPy array (e.g., 4096×4096 16-bit for CT)
@@ -108,32 +106,11 @@ def dicom_s3_to_jpeg_bytes_and_upload(dicom_key: str) -> str:
     jpeg_bytes = buffer.getvalue()
     buffer.close()
 
-    # Build a “previews/…” key from the original DICOM key:
-    # e.g. dicom/user123/1234-abc.dcm → previews/user123/1234-abc.jpg
-    preview_key = dicom_key.replace("dicom/", "previews/").replace(".dcm", ".jpg")
-
-    # Upload that JPEG back to S3
-    s3.put_object(
-        Bucket=S3_BUCKET_NAME,
-        Key=preview_key,
-        Body=jpeg_bytes,
-        ContentType="image/jpeg",
-        ACL="private"
-    )
-    print(f"✅ Python: uploaded preview JPEG to S3 key={preview_key}")
-
-    # Generate a presigned URL (valid for 1 hour)
-    preview_url = s3.generate_presigned_url(
-        "get_object",
-        Params={"Bucket": S3_BUCKET_NAME, "Key": preview_key},
-        ExpiresIn=3600
-    )
-
-    return preview_url
+    return jpeg_bytes
 
 
 # ------------------------------------------------------------------------------
-# 5) (Stub) AI Inference on JPEG Bytes
+# 5) (Stub) AI Inference on JPEG Bytes 
 #    Replace this with a real model later.
 # ------------------------------------------------------------------------------
 def run_dummy_ai_inference(jpeg_bytes: bytes) -> tuple[list[dict], float]:
@@ -159,26 +136,21 @@ def run_dummy_ai_inference(jpeg_bytes: bytes) -> tuple[list[dict], float]:
 async def interpret(request: InterpretRequest):
     """
     Node will POST JSON: { "dicomS3Key": "dicom/xxx.dcm", "studyId": "..." }
-    We: fetch the DICOM from S3, convert → JPEG, upload preview, run AI, and return findings + preview URL.
+    We: fetch the DICOM from S3, convert → JPEG, run AI, and return findings.
     """
     dicom_key = request.dicomS3Key
     study_id = request.studyId  # for logging/debug, not strictly needed here
 
-    # 6a) Convert from S3 DICOM → in-memory JPEG and upload preview
-    preview_url = dicom_s3_to_jpeg_bytes_and_upload(dicom_key)
+    # 6a) Convert from S3 DICOM → in-memory JPEG bytes
+    jpeg_bytes = dicom_s3_to_jpeg_bytes(dicom_key)
 
-    # 6b) For dummy AI, reload the JPEG bytes from the preview we just stored
-    obj = s3.get_object(Bucket=S3_BUCKET_NAME, Key=preview_url.split(f"{S3_BUCKET_NAME}/")[1].split("?")[0])
-    jpeg_bytes = obj["Body"].read()
-
-    # 6c) Run (dummy) AI inference
+    # 6b) Run (dummy) AI inference
     findings, overall_confidence = run_dummy_ai_inference(jpeg_bytes)
 
-    # 6d) Return JSON to Node
+    # 6c) Return JSON to Node
     return InterpretResponse(
         findings=[Finding(**f) for f in findings],
         confidence=overall_confidence,
-        previewUrl=preview_url
     )
 
 
@@ -188,4 +160,3 @@ async def interpret(request: InterpretRequest):
 @app.get("/health")
 async def health():
     return {"status": "ok", "service": "python-ai-service"}
-
