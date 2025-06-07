@@ -41,6 +41,10 @@ app = FastAPI(
 @app.get("/")
 async def root():
     return {"message": "Aether JPEG service is running"}
+    
+@app.head("/")
+async def head_root():
+    return Response(status_code=200)
 
 # ----------------------------------------------------------------------------
 # 3) Request & Response Models

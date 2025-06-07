@@ -9,7 +9,6 @@ import json
 import time
 import textwrap
 import traceback
-import urllib.parse
 from datetime import datetime
 from typing import List, Dict, Any
 from urllib.parse import urlparse
@@ -136,39 +135,45 @@ def summarise_study(arrays: List[List[Dict[str,Any]]]) -> str:
 # ------------------------------------------------------------
 def process_study(study: dict) -> None:
     sid, uid = str(study["_id"]), study["userId"]
-    # init preview and fail counts on first run
+    # ensure aiInterpretation is an object
+    if study.get("aiInterpretation") is None:
+        coll.update_one(
+            {"_id": ObjectId(sid)},
+            {"$set": {"aiInterpretation": {"enhancedCaptions": [], "failCount": {}}}}
+        )
+        study["aiInterpretation"] = {"enhancedCaptions": [], "failCount": {}}
+
+    # init previewCount on first run
     if study.get("previewCount") is None:
         count = len(study.get("imageUrls", []))
-        coll.update_one({"_id":ObjectId(sid)}, {"$set":{"previewCount":count, "aiInterpretation.failCount":{}}})
+        coll.update_one(
+            {"_id": ObjectId(sid)},
+            {"$set": {"previewCount": count}}
+        )
         study["previewCount"] = count
-        study.setdefault("aiInterpretation", {})["failCount"] = {}
 
     done = {c["url"] for c in study.get("aiInterpretation", {}).get("enhancedCaptions", [])}
     fails = study.get("aiInterpretation", {}).get("failCount", {})
     new_caps, finds_list = [], []
 
     for url in study.get("imageUrls", []):
-        # Skip already annotated
-        if url in done:
+        if url in done or "/annotated/" in url:
             continue
-        # Skip own annotated outputs
-        if "/annotated/" in url:
-            continue
-        # Skip after 3 failures
         if fails.get(url, 0) >= 3:
             print(f"⚠️ Skipping {url} after 3 failures")
             continue
-        # Fetch
+
+        # fetch
         try:
             imgb = fetch_jpeg_from_s3(url)
         except Exception as e:
             print(f"❌ fetch {url}: {e}")
             fails[url] = fails.get(url, 0) + 1
-            safe = urllib.parse.quote_plus(url)
-            field = f"aiInterpretation.failCount.{safe}"
-            coll.update_one({"_id": ObjectId(sid)}, {"$set": { field: fails[url] }})
+            field = f"aiInterpretation.failCount.{url}"
+            coll.update_one({"_id": ObjectId(sid)}, {"$set": {field: fails[url]}})
             continue
-        # Analyse
+
+        # analyse
         try:
             res = analyse_image(url)
             cap = res.get("caption", "")
@@ -176,47 +181,47 @@ def process_study(study: dict) -> None:
             finds_list.append(finds)
         except Exception:
             fails[url] = fails.get(url, 0) + 1
-            safe = urllib.parse.quote_plus(url)
-            field = f"aiInterpretation.failCount.{safe}"
-            coll.update_one({"_id": ObjectId(sid)}, {"$set": { field: fails[url] }})
+            field = f"aiInterpretation.failCount.{url}"
+            coll.update_one({"_id": ObjectId(sid)}, {"$set": {field: fails[url]}})
             continue
-        # Annotate & upload
+
+        # annotate
         try:
             ann = draw_annotations(imgb, cap, finds)
             key = f"annotated/{uid}/{int(time.time()*1000)}.jpg"
             s3.put_object(Bucket=S3_BUCKET, Key=key, Body=ann, ContentType="image/jpeg")
-            ann_url = s3.generate_presigned_url("get_object", Params={"Bucket":S3_BUCKET,"Key":key}, ExpiresIn=3600)
+            ann_url = s3.generate_presigned_url("get_object", Params={"Bucket": S3_BUCKET, "Key": key}, ExpiresIn=3600)
         except Exception as e:
             print(f"❌ upload {url}: {e}")
             fails[url] = fails.get(url, 0) + 1
-            safe = urllib.parse.quote_plus(url)
-            field = f"aiInterpretation.failCount.{safe}"
-            coll.update_one({"_id": ObjectId(sid)}, {"$set": { field: fails[url] }})
+            field = f"aiInterpretation.failCount.{url}"
+            coll.update_one({"_id": ObjectId(sid)}, {"$set": {field: fails[url]}})
             continue
-        new_caps.append({"url":url,"caption":cap,"raw":res,"annotatedUrl":ann_url,"timestamp":datetime.utcnow()})
+
+        new_caps.append({"url": url, "caption": cap, "raw": res, "annotatedUrl": ann_url, "timestamp": datetime.utcnow()})
 
     if not new_caps:
         print("No new images to annotate.")
         return
 
-    # Summary
+    # summary
     try:
         summary = summarise_study(finds_list)
     except Exception as e:
         print(f"❌ summarise_study failed: {e}")
         summary = ""
 
-    coll.update_one({"_id":ObjectId(sid)}, {\
-        "$push": {"aiInterpretation.enhancedCaptions": {"$each":new_caps}},\
-        "$set": {"aiInterpretation.aggregateSummary":summary, "aiInterpretation.updatedAt":datetime.utcnow()}\
+    coll.update_one({"_id": ObjectId(sid)}, {
+        "$push": {"aiInterpretation.enhancedCaptions": {"$each": new_caps}},
+        "$set": {"aiInterpretation.aggregateSummary": summary, "aiInterpretation.updatedAt": datetime.utcnow()}
     })
 
-    # Stop condition
-    doc = coll.find_one({"_id":ObjectId(sid)}, {"aiInterpretation.enhancedCaptions":1, "previewCount":1, "aiInterpretation.failCount":1})
+    # completion check
+    doc = coll.find_one({"_id": ObjectId(sid)}, {"aiInterpretation.enhancedCaptions": 1, "previewCount": 1, "aiInterpretation.failCount": 1})
     annotated_count = len(doc.get("aiInterpretation", {}).get("enhancedCaptions", []))
     skipped_count = sum(1 for c in doc.get("aiInterpretation", {}).get("failCount", {}).values() if c >= 3)
     if annotated_count + skipped_count >= doc.get("previewCount", 0):
-        coll.update_one({"_id":ObjectId(sid)}, {"$set":{"analysisRequested":False}})
+        coll.update_one({"_id": ObjectId(sid)}, {"$set": {"analysisRequested": False}})
         print(f"🔒 Study {sid} fully done (annotated {annotated_count}, skipped {skipped_count}), stopping.")
 
     print(f"✅ Annotated {len(new_caps)} image(s) for study {sid}")
@@ -227,10 +232,8 @@ def process_study(study: dict) -> None:
 def poll_forever() -> None:
     while True:
         try:
-            studies = list(coll.find({"analysisRequested":True}).limit(5))
-            if not studies:
-                time.sleep(POLL_INTERVAL)
-                continue
+            studies = list(coll.find({"analysisRequested": True}).limit(5))
+            print(f"[Worker] ⏱ polled, found {len(studies)} studies with analysisRequested=true")
             for s in studies:
                 process_study(s)
         except Exception as e:
