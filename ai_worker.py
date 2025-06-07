@@ -135,10 +135,10 @@ def summarise_study(arrays: List[List[Dict[str,Any]]]) -> str:
 # ------------------------------------------------------------
 def process_study(study: dict) -> None:
     sid, uid = str(study["_id"]), study["userId"]
-    # init preview count and fail count on first run
+    # init preview and fail counts on first run
     if study.get("previewCount") is None:
         count = len(study.get("imageUrls", []))
-        coll.update_one({"_id":ObjectId(sid)}, {"$set":{"previewCount":count, "aiInterpretation.failCount":{{}}}})
+        coll.update_one({"_id":ObjectId(sid)}, {"$set":{"previewCount":count, "aiInterpretation.failCount":{}}})
         study["previewCount"] = count
         study.setdefault("aiInterpretation", {})["failCount"] = {}
     prev_count = study["previewCount"]
@@ -150,29 +150,25 @@ def process_study(study: dict) -> None:
     for url in study.get("imageUrls", []):
         if url in done:
             continue
-        fail_count = fails.get(url, 0)
-        if fail_count >= 3:
-            print(f"⚠️ Skipping {url} after {fail_count} failures")
+        if fails.get(url, 0) >= 3:
+            print(f"⚠️ Skipping {url} after 3 failures")
             continue
-
         try:
             imgb = fetch_jpeg_from_s3(url)
         except Exception as e:
             print(f"❌ fetch {url}: {e}")
-            fails[url] = fail_count + 1
-            coll.update_one({"_id":ObjectId(sid)}, {"$set":{f"aiInterpretation.failCount.{url}":fails[url]}})
+            fails[url] = fails.get(url, 0) + 1
+            coll.update_one({"_id":ObjectId(sid)}, {"$set":{"aiInterpretation.failCount.{url}":fails[url]}})
             continue
-
         try:
             res = analyse_image(url)
             cap = res.get("caption", "")
             finds = res.get("findings", [])
             finds_list.append(finds)
         except Exception:
-            fails[url] = fail_count + 1
-            coll.update_one({"_id":ObjectId(sid)}, {"$set":{f"aiInterpretation.failCount.{url}":fails[url]}})
+            fails[url] = fails.get(url, 0) + 1
+            coll.update_one({"_id":ObjectId(sid)}, {"$set":{"aiInterpretation.failCount.{url}":fails[url]}})
             continue
-
         try:
             ann = draw_annotations(imgb, cap, finds)
             key = f"annotated/{uid}/{int(time.time()*1000)}.jpg"
@@ -180,33 +176,33 @@ def process_study(study: dict) -> None:
             ann_url = s3.generate_presigned_url("get_object", Params={"Bucket":S3_BUCKET,"Key":key}, ExpiresIn=3600)
         except Exception as e:
             print(f"❌ upload {url}: {e}")
-            fails[url] = fail_count + 1
-            coll.update_one({"_id":ObjectId(sid)}, {"$set":{f"aiInterpretation.failCount.{url}":fails[url]}})
+            fails[url] = fails.get(url, 0) + 1
+            coll.update_one({"_id":ObjectId(sid)}, {"$set":{"aiInterpretation.failCount.{url}":fails[url]}})
             continue
-
         new_caps.append({"url":url,"caption":cap,"raw":res,"annotatedUrl":ann_url,"timestamp":datetime.utcnow()})
 
     if not new_caps:
         print("No new images to annotate.")
         return
 
-    summary = ""
     try:
         summary = summarise_study(finds_list)
     except Exception as e:
         print(f"❌ summarise_study failed: {e}")
+        summary = ""
 
     coll.update_one({"_id":ObjectId(sid)}, {
         "$push": {"aiInterpretation.enhancedCaptions": {"$each":new_caps}},
         "$set": {"aiInterpretation.aggregateSummary":summary, "aiInterpretation.updatedAt":datetime.utcnow()}
     })
 
-    # check if done
-    doc = coll.find_one({"_id":ObjectId(sid)}, {"aiInterpretation.enhancedCaptions":1, "previewCount":1})
-    cap_count = len(doc.get("aiInterpretation", {}).get("enhancedCaptions", []))
-    if cap_count + sum(1 for c in doc.get("aiInterpretation", {}).get("failCount", {}).values() if c >= 3) >= doc.get("previewCount", 0):
+    # check completion: annotated + skipped ≥ previews
+    doc = coll.find_one({"_id":ObjectId(sid)}, {"aiInterpretation.enhancedCaptions":1, "previewCount":1, "aiInterpretation.failCount":1})
+    annotated_count = len(doc.get("aiInterpretation", {}).get("enhancedCaptions", []))
+    skipped_count = sum(1 for c in doc.get("aiInterpretation", {}).get("failCount", {}).values() if c >= 3)
+    if annotated_count + skipped_count >= doc.get("previewCount", 0):
         coll.update_one({"_id":ObjectId(sid)}, {"$set":{"analysisRequested":False}})
-        print(f"🔒 Study {sid} fully annotated or skipped, stopping.")
+        print(f"🔒 Study {sid} fully done (annotated {annotated_count}, skipped {skipped_count}), stopping.")
 
     print(f"✅ Annotated {len(new_caps)} image(s) for study {sid}")
 
