@@ -60,35 +60,48 @@ def fetch_jpeg_from_s3(presigned_url: str) -> bytes:
 # 1. OpenAI – per-image analysis
 # ------------------------------------------------------------
 def analyse_image(url: str) -> Dict[str, Any]:
+    # build one big prompt with triple quotes
+    prompt = f"""
+You are an experienced radiologist explaining a single image to a non-specialist.
+Here is the image URL: {url}
+
+1. Describe the main anatomical structures you recognize.
+2. State whether the image is normal or abnormal.
+3. If abnormal, list the key finding(s) and for each give up to two POSSIBLE conditions
+   (differential diagnosis) in plain English. Use phrases like "could indicate …" or
+   "may represent …", never a definitive diagnosis.
+4. Keep the entire reply to 80 words or less.
+
+Return EXACTLY this JSON schema only:
+{{
+  "caption": "...",
+  "findings": [
+    {{
+      "observation": "...",
+      "possibleConditions": ["...", "..."]
+    }}
+  ]
+}}
+""".strip()
+
     resp = openai.chat.completions.create(
-        model       = MODEL,
-        max_tokens  = 400,
-        temperature = 0.2,
-        messages    = [
-            {
-                "role": "user",
-                "content": [
-                    {"type": "image_url", "image_url": {"url": url, "detail": "high"}},
-                    {"type": "text", "text": (
-                        "You are an experienced radiologist explaining a single image "
-                            "to a non-specialist.\n\n"
-                            "1. Describe main anatomical structures you recognise.\n"
-                            "2. State whether the image is normal or abnormal.\n"
-                            "3. If abnormal, list the key finding(s) and for each give up "
-                            "to two POSSIBLE conditions (differential diagnosis) in plain English. "
-                            "Use phrases like “could indicate …” or “may represent …”, "
-                            "never a definitive diagnosis.\n"
-                            "4. Keep the entire reply ≤80 words.\n\n"
-                            "Return EXACTLY this JSON schema only:\n"
-                            '{ "caption": "...", "findings": [ {"observation":"...",'
-                            ' "possibleConditions":["...","..."]} ] }
-                    )},
-                ],
-            }
-        ],
-        response_format={"type": "json_object"},
-    )
+    model=MODEL,
+    max_tokens=400,
+    temperature=0.2,
+    messages=[
+        {
+          "role": "user",
+          "content": [
+            {"type": "image_url", "image_url": {"url": url, "detail": "high"}},
+            {"type": "text",      "text": prompt}
+          ]
+        }
+    ],
+    response_format={"type": "json_object"},
+)
+
     return json.loads(resp.choices[0].message.content)
+
 
 # ------------------------------------------------------------
 # 2. Draw caption onto the JPEG
