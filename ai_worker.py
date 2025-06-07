@@ -70,8 +70,18 @@ def analyse_image(url: str) -> Dict[str, Any]:
                 "content": [
                     {"type": "image_url", "image_url": {"url": url, "detail": "high"}},
                     {"type": "text", "text": (
-                        "You are an experienced radiologist explaining a single image..."
-                        # full instructions omitted for brevity
+                        "You are an experienced radiologist explaining a single image "
+                            "to a non-specialist.\n\n"
+                            "1. Describe main anatomical structures you recognise.\n"
+                            "2. State whether the image is normal or abnormal.\n"
+                            "3. If abnormal, list the key finding(s) and for each give up "
+                            "to two POSSIBLE conditions (differential diagnosis) in plain English. "
+                            "Use phrases like “could indicate …” or “may represent …”, "
+                            "never a definitive diagnosis.\n"
+                            "4. Keep the entire reply ≤80 words.\n\n"
+                            "Return EXACTLY this JSON schema only:\n"
+                            '{ "caption": "...", "findings": [ {"observation":"...",'
+                            ' "possibleConditions":["...","..."]} ] }
                     )},
                 ],
             }
