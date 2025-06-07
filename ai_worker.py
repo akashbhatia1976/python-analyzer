@@ -8,6 +8,7 @@ import io
 import json
 import time
 import textwrap
+import traceback
 from datetime import datetime
 from typing import List, Dict, Any
 from urllib.parse import urlparse
@@ -69,18 +70,24 @@ Return ONLY this JSON:
   "findings":[{{"observation":"...","possibleConditions":["...","..."],"bbox":[x,y,w,h]}}]
 }}
 """.strip()
-
-    resp = openai.chat.completions.create(
-        model=MODEL,
-        max_tokens=400,
-        temperature=0.2,
-        messages=[
-            {"role":"user","content":[{"type":"image_url","image_url":{"url":url,"detail":"high"}},
-              {"type":"text","text":prompt}]}
-        ],
-        response_format={"type":"json_object"},
-    )
-    return json.loads(resp.choices[0].message.content)
+    try:
+        resp = openai.chat.completions.create(
+            model=MODEL,
+            max_tokens=400,
+            temperature=0.2,
+            messages=[
+                {"role":"user","content":[
+                    {"type":"image_url","image_url":{"url":url,"detail":"high"}},
+                    {"type":"text","text":prompt}
+                ]}
+            ],
+            response_format={"type":"json_object"},
+        )
+        return json.loads(resp.choices[0].message.content)
+    except Exception as e:
+        print(f"❌ analyse_image failed for {url}: {repr(e)}")
+        traceback.print_exc()
+        raise
 
 # ------------------------------------------------------------
 # 2. Draw caption & highlight
@@ -106,7 +113,9 @@ def draw_annotations(jpeg: bytes, caption: str, findings: List[Dict[str,Any]]) -
     for dx,dy in [(-1,-1),(1,-1),(-1,1),(1,1)]:
         draw.multiline_text((tx+dx,ty+dy), text, font=font, fill=(0,0,0,255))
     draw.multiline_text((tx,ty), text, font=font, fill=(255,255,255,255))
-    buf = io.BytesIO(); img.save(buf,format="JPEG",quality=90); return buf.getvalue()
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=90)
+    return buf.getvalue()
 
 # ------------------------------------------------------------
 # 3. Study summary
@@ -126,48 +135,80 @@ def summarise_study(arrays: List[List[Dict[str,Any]]]) -> str:
 # ------------------------------------------------------------
 def process_study(study: dict) -> None:
     sid, uid = str(study["_id"]), study["userId"]
-    # initialize preview count once
+    # init preview count and fail count on first run
     if study.get("previewCount") is None:
-        count = len(study.get("imageUrls",[]))
-        coll.update_one({"_id":ObjectId(sid)}, {"$set":{"previewCount":count}})
+        count = len(study.get("imageUrls", []))
+        coll.update_one({"_id":ObjectId(sid)}, {"$set":{"previewCount":count, "aiInterpretation.failCount":{{}}}})
         study["previewCount"] = count
+        study.setdefault("aiInterpretation", {})["failCount"] = {}
     prev_count = study["previewCount"]
-    done_urls = {c["url"] for c in study.get("aiInterpretation",{}).get("enhancedCaptions",[])}
+
+    done = {c["url"] for c in study.get("aiInterpretation", {}).get("enhancedCaptions", [])}
+    fails = study.get("aiInterpretation", {}).get("failCount", {})
     new_caps, finds_list = [], []
-    for url in study.get("imageUrls",[]):
-        if url in done_urls: continue
-        try: imgb = fetch_jpeg_from_s3(url)
-        except Exception as e: print(f"❌ fetch {url}: {e}"); continue
+
+    for url in study.get("imageUrls", []):
+        if url in done:
+            continue
+        fail_count = fails.get(url, 0)
+        if fail_count >= 3:
+            print(f"⚠️ Skipping {url} after {fail_count} failures")
+            continue
+
+        try:
+            imgb = fetch_jpeg_from_s3(url)
+        except Exception as e:
+            print(f"❌ fetch {url}: {e}")
+            fails[url] = fail_count + 1
+            coll.update_one({"_id":ObjectId(sid)}, {"$set":{f"aiInterpretation.failCount.{url}":fails[url]}})
+            continue
+
         try:
             res = analyse_image(url)
-            cap = res.get("caption","")
-            finds = res.get("findings",[])
+            cap = res.get("caption", "")
+            finds = res.get("findings", [])
             finds_list.append(finds)
-        except Exception as e:
-            print(f"❌ analyse {url}: {e}"); continue
-        ann = draw_annotations(imgb, cap, finds)
-        key = f"annotated/{uid}/{int(time.time()*1000)}.jpg"
+        except Exception:
+            fails[url] = fail_count + 1
+            coll.update_one({"_id":ObjectId(sid)}, {"$set":{f"aiInterpretation.failCount.{url}":fails[url]}})
+            continue
+
         try:
-            s3.put_object(Bucket=S3_BUCKET,Key=key,Body=ann,ContentType="image/jpeg")
+            ann = draw_annotations(imgb, cap, finds)
+            key = f"annotated/{uid}/{int(time.time()*1000)}.jpg"
+            s3.put_object(Bucket=S3_BUCKET, Key=key, Body=ann, ContentType="image/jpeg")
             ann_url = s3.generate_presigned_url("get_object", Params={"Bucket":S3_BUCKET,"Key":key}, ExpiresIn=3600)
         except Exception as e:
-            print(f"❌ upload {key}: {e}"); continue
+            print(f"❌ upload {url}: {e}")
+            fails[url] = fail_count + 1
+            coll.update_one({"_id":ObjectId(sid)}, {"$set":{f"aiInterpretation.failCount.{url}":fails[url]}})
+            continue
+
         new_caps.append({"url":url,"caption":cap,"raw":res,"annotatedUrl":ann_url,"timestamp":datetime.utcnow()})
+
     if not new_caps:
-        print("No new images to annotate."); return
-    try: summary = summarise_study(finds_list)
-    except: summary = ""
-    # push and check completion
+        print("No new images to annotate.")
+        return
+
+    summary = ""
+    try:
+        summary = summarise_study(finds_list)
+    except Exception as e:
+        print(f"❌ summarise_study failed: {e}")
+
     coll.update_one({"_id":ObjectId(sid)}, {
         "$push": {"aiInterpretation.enhancedCaptions": {"$each":new_caps}},
         "$set": {"aiInterpretation.aggregateSummary":summary, "aiInterpretation.updatedAt":datetime.utcnow()}
     })
-    # reload count
+
+    # check if done
     doc = coll.find_one({"_id":ObjectId(sid)}, {"aiInterpretation.enhancedCaptions":1, "previewCount":1})
-    if len(doc["aiInterpretation"]["enhancedCaptions"]) >= doc["previewCount"]:
-        coll.update_one({"_id":ObjectId(sid)}, {"$set": {"analysisRequested": False}})
-        print(f"🔒 Study {sid} fully annotated, stopping." )
-    print(f"✅ Annotated {len(new_caps)} for study {sid}")
+    cap_count = len(doc.get("aiInterpretation", {}).get("enhancedCaptions", []))
+    if cap_count + sum(1 for c in doc.get("aiInterpretation", {}).get("failCount", {}).values() if c >= 3) >= doc.get("previewCount", 0):
+        coll.update_one({"_id":ObjectId(sid)}, {"$set":{"analysisRequested":False}})
+        print(f"🔒 Study {sid} fully annotated or skipped, stopping.")
+
+    print(f"✅ Annotated {len(new_caps)} image(s) for study {sid}")
 
 # ------------------------------------------------------------
 # 5. Poll loop
@@ -175,12 +216,16 @@ def process_study(study: dict) -> None:
 def poll_forever() -> None:
     while True:
         try:
-            cursor = coll.find({"analysisRequested":True}).limit(5)
-            studies = list(cursor)
-            if not studies: time.sleep(POLL_INTERVAL); continue
-            for s in studies: process_study(s)
+            studies = list(coll.find({"analysisRequested":True}).limit(5))
+            if not studies:
+                time.sleep(POLL_INTERVAL)
+                continue
+            for s in studies:
+                process_study(s)
         except Exception as e:
-            print(f"⚠️ Worker error: {e}"); time.sleep(5)
+            print(f"⚠️ Worker error: {e}")
+            traceback.print_exc()
+            time.sleep(5)
 
 if __name__ == "__main__":
     print(f"[{datetime.utcnow().isoformat()}] 🟢 Worker started, polling every {POLL_INTERVAL}s.")
