@@ -43,20 +43,17 @@ mongo  = MongoClient(MONGO_URI)
 coll   = mongo[DB_NAME][COLL]
 
 # ------------------------------------------------------------
-# Helper: fetch JPEG bytes from S3 using SDK rather than HTTP
+# Helper: fetch JPEG bytes from S3
 # ------------------------------------------------------------
 def fetch_jpeg_from_s3(presigned_url: str) -> bytes:
     parsed = urlparse(presigned_url)
     path_parts = parsed.path.lstrip("/").split("/", 1)
-    if path_parts[0] == S3_BUCKET and len(path_parts) > 1:
-        key = path_parts[1]
-    else:
-        key = parsed.path.lstrip("/")
+    key = path_parts[1] if path_parts[0] == S3_BUCKET and len(path_parts) > 1 else parsed.path.lstrip("/")
     resp = s3.get_object(Bucket=S3_BUCKET, Key=key)
     return resp["Body"].read()
 
 # ------------------------------------------------------------
-# 1. OpenAI – per-image analysis with highlights
+# 1. OpenAI – per-image analysis with bounding boxes
 # ------------------------------------------------------------
 def analyse_image(url: str) -> Dict[str, Any]:
     prompt = f"""
@@ -65,22 +62,22 @@ Here is the image URL: {url}
 
 1. Describe the main anatomical structures you recognize.
 2. State whether the image is normal or abnormal.
-3. If abnormal, list key finding(s) and for each give up to two POSSIBLE conditions (differential diagnosis) in plain English.
-   Use phrases like "could indicate …" or "may represent …", never a definitive diagnosis.
-4. For each finding, provide approximate bounding box coordinates of the abnormal region in the format [x, y, width, height], normalized to image dimensions.
-5. Keep the entire reply ≤80 words.
+3. If abnormal, list key finding(s) and for each give up to two POSSIBLE conditions.
+   Use phrases like "could indicate …" or "may represent …", never definitive diagnosis.
+4. For each finding, provide approximate bbox [x, y, width, height] normalized to image dimensions.
+5. Keep reply ≤80 words.
 
 Return EXACTLY this JSON schema only:
-{
+{{
   "caption": "...",
   "findings": [
-    {
+    {{
       "observation": "...",
       "possibleConditions": ["...","..."],
       "bbox": [x, y, width, height]
-    }
+    }}
   ]
-}
+}}
 """.strip()
 
     resp = openai.chat.completions.create(
@@ -101,128 +98,115 @@ Return EXACTLY this JSON schema only:
     return json.loads(resp.choices[0].message.content)
 
 # ------------------------------------------------------------
-# 2. Draw caption and highlight boxes onto the JPEG
+# 2. Draw caption & highlight boxes onto the JPEG
 # ------------------------------------------------------------
-def draw_annotations(jpeg_bytes: bytes, caption: str, findings: List[Dict[str, Any]]) -> bytes:
+def draw_annotations(jpeg_bytes: bytes, caption: str, findings: List[Dict[str, Any]]):
     img = Image.open(io.BytesIO(jpeg_bytes)).convert("RGB")
-    draw = ImageDraw.Draw(img)
-    width, height = img.size
+    draw = ImageDraw.Draw(img, "RGBA")
+    w, h = img.size
 
-    # draw bounding boxes
+    # draw semi-transparent red box for each finding
     for f in findings:
-        if "bbox" in f:
-            x, y, w, h = f["bbox"]
-            # denormalize
-            left = int(x * width)
-            top = int(y * height)
-            right = int((x + w) * width)
-            bottom = int((y + h) * height)
-            # draw semi-transparent red overlay
-            draw.rectangle([left, top, right, bottom], outline="red", width=3)
+        bbox = f.get("bbox")
+        if bbox:
+            x, y, bw, bh = bbox
+            left = int(x * w)
+            top = int(y * h)
+            right = int((x + bw) * w)
+            bottom = int((y + bh) * h)
+            draw.rectangle([left, top, right, bottom], outline=(255,0,0,255), width=3)
 
-    # draw caption at bottom
+    # overlay caption text
     try:
         font = ImageFont.truetype(FONT_PATH, FONT_SIZE)
-    except Exception:
+    except:
         font = ImageFont.load_default()
-    wrapped = textwrap.fill(caption, width=50)
-    bbox_text = draw.multiline_textbbox((0,0), wrapped, font=font)
-    tw, th = bbox_text[2]-bbox_text[0], bbox_text[3]-bbox_text[1]
-    x_text, y_text = 10, height - th - 10
-    # outline text
+    text = textwrap.fill(caption, width=50)
+    tb = draw.multiline_textbbox((0,0), text, font=font)
+    tx, ty = 10, h - (tb[3] - tb[1]) - 10
+    # text shadow
     for dx, dy in [(-1,-1),(1,-1),(-1,1),(1,1)]:
-        draw.multiline_text((x_text+dx, y_text+dy), wrapped, font=font, fill="black")
-    draw.multiline_text((x_text, y_text), wrapped, font=font, fill="white")
+        draw.multiline_text((tx+dx, ty+dy), text, font=font, fill=(0,0,0,255))
+    draw.multiline_text((tx, ty), text, font=font, fill=(255,255,255,255))
 
-    out = io.BytesIO()
-    img.save(out, format="JPEG", quality=90)
-    return out.getvalue()
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=90)
+    return buf.getvalue()
 
 # ------------------------------------------------------------
-# 3. Aggregate study summary
+# 3. Study-level summary
 # ------------------------------------------------------------
 def summarise_study(findings_arrays: List[List[Dict[str, Any]]]) -> str:
-    prompt_json = json.dumps(findings_arrays, indent=2)
+    data = json.dumps(findings_arrays, indent=2)
     resp = openai.chat.completions.create(
         model=MODEL,
         max_tokens=250,
         temperature=0.3,
-        messages=[{"role":"user","content":(
-            f"Here are the findings arrays... {prompt_json}"
-        )}],
+        messages=[{"role":"user","content":f"Here are the findings... {data}"}],
     )
     return resp.choices[0].message.content.strip()
 
 # ------------------------------------------------------------
 # 4. Main processing per study
 # ------------------------------------------------------------
-def process_study(study: dict) -> None:
-    study_id = str(study["_id"])
-    user_id  = study["userId"]
-    print(f"[{datetime.utcnow().isoformat()}] ➜  Processing study {study_id}")
+def process_study(study: dict):
+    sid = str(study["_id"])
+    uid = study["userId"]
+    print(f"[{datetime.utcnow().isoformat()}] ➜ Processing {sid}")
 
-    done = {e["url"] for e in study.get("aiInterpretation", {}).get("enhancedCaptions", [])}
-    new_caps = []
-    findings_lists = []
+    done = {c["url"] for c in study.get("aiInterpretation",{}).get("enhancedCaptions",[])}
+    new_caps, findings_list = [], []
 
-    for url in study["imageUrls"]:
+    for url in study.get("imageUrls",[]):
         if url in done: continue
         try:
-            jpeg_bytes = fetch_jpeg_from_s3(url)
+            img_bytes = fetch_jpeg_from_s3(url)
         except Exception as e:
-            print(f"❌ Failed to fetch {url}: {e}")
-            continue
+            print(f"❌ fetch {url}: {e}"); continue
         try:
-            analysis = analyse_image(url)
-            caption  = analysis["caption"]
-            findings = analysis.get("findings", [])
-            findings_lists.append(findings)
+            result = analyse_image(url)
+            caption = result.get("caption","")
+            finds   = result.get("findings",[])
+            findings_list.append(finds)
         except Exception as e:
-            print(f"❌ OpenAI analysis failed for {url}: {e}")
-            continue
-        annotated = draw_annotations(jpeg_bytes, caption, findings)
-        ts  = int(time.time()*1000)
-        key = f"annotated/{user_id}/{ts}.jpg"
+            print(f"❌ analyse {url}: {e}"); continue
+        ann = draw_annotations(img_bytes, caption, finds)
+        ts = int(time.time()*1000)
+        key = f"annotated/{uid}/{ts}.jpg"
         try:
-            s3.put_object(Bucket=S3_BUCKET, Key=key, Body=annotated, ContentType="image/jpeg", ACL="private")
-            annotated_url = s3.generate_presigned_url("get_object", Params={"Bucket":S3_BUCKET,"Key":key}, ExpiresIn=3600)
+            s3.put_object(Bucket=S3_BUCKET, Key=key, Body=ann, ContentType="image/jpeg")
+            ann_url = s3.generate_presigned_url("get_object", Params={"Bucket":S3_BUCKET,"Key":key}, ExpiresIn=3600)
         except Exception as e:
-            print(f"❌ S3 upload failed for {key}: {e}")
-            continue
-        new_caps.append({"url":url, "caption":caption, "raw":analysis, "annotatedUrl":annotated_url, "timestamp":datetime.utcnow()})
+            print(f"❌ upload {key}: {e}"); continue
+        new_caps.append({"url":url,"caption":caption,"raw":result,"annotatedUrl":ann_url,"timestamp":datetime.utcnow()})
 
     if not new_caps:
-        print("No new images to annotate.")
-        return
+        print("No new images to annotate."); return
 
     try:
-        agg = summarise_study(findings_lists)
-    except Exception:
-        agg = ""
+        summary = summarise_study(findings_list)
+    except:
+        summary = ""
 
-    coll.update_one({"_id":ObjectId(study_id)}, {
-        "$push": {"aiInterpretation.enhancedCaptions":{"$each":new_caps}},
-        "$set": {"aiInterpretation.aggregateSummary":agg, "aiInterpretation.updatedAt":datetime.utcnow()}
+    coll.update_one({"_id":ObjectId(sid)}, {
+        "$push":{"aiInterpretation.enhancedCaptions":{"$each":new_caps}},
+        "$set":{"aiInterpretation.aggregateSummary":summary,"aiInterpretation.updatedAt":datetime.utcnow()}
     })
-    print(f"✅ Annotated {len(new_caps)} image(s) for study {study_id}")
+    print(f"✅ Annotated {len(new_caps)} image(s) for study {sid}")
 
 # ------------------------------------------------------------
-# 5. Polling loop
+# Poll loop
 # ------------------------------------------------------------
-def poll_forever() -> None:
+def poll_forever():
     while True:
         try:
-            cursor = coll.find({"analysisRequested":True, "aiInterpretation.enhancedCaptions":{"$exists":False}}, sort=[("uploadedAt",1)]).limit(5)
-            studies = list(cursor)
-            if not studies:
-                time.sleep(POLL_INTERVAL)
-                continue
-            for s in studies: process_study(s)
-        except Exception as exc:
-            print(f"⚠️ Worker error: {exc}")
+            cur = coll.find({"analysisRequested":True, "aiInterpretation.enhancedCaptions":{"$exists":False}}).limit(5)
+            for s in list(cur): process_study(s)
+        except Exception as e:
+            print(f"⚠️ error: {e}")
             time.sleep(5)
 
 if __name__ == "__main__":
-    print(f"[{datetime.utcnow().isoformat()}] 🟢 ai_worker started, polling every {POLL_INTERVAL}s.")
+    print(f"[{datetime.utcnow().isoformat()}] 🟢 Worker started, polling every {POLL_INTERVAL}s.")
     poll_forever()
 
