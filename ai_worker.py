@@ -48,7 +48,6 @@ coll   = mongo[DB_NAME][COLL]
 def fetch_jpeg_from_s3(presigned_url: str) -> bytes:
     parsed = urlparse(presigned_url)
     path_parts = parsed.path.lstrip("/").split("/", 1)
-    # If bucket name is virtual-hosted (in host), path_parts[0] is key prefix
     if path_parts[0] == S3_BUCKET and len(path_parts) > 1:
         key = path_parts[1]
     else:
@@ -57,74 +56,83 @@ def fetch_jpeg_from_s3(presigned_url: str) -> bytes:
     return resp["Body"].read()
 
 # ------------------------------------------------------------
-# 1. OpenAI – per-image analysis
+# 1. OpenAI – per-image analysis with highlights
 # ------------------------------------------------------------
 def analyse_image(url: str) -> Dict[str, Any]:
-    # build one big prompt with triple quotes
     prompt = f"""
 You are an experienced radiologist explaining a single image to a non-specialist.
 Here is the image URL: {url}
 
 1. Describe the main anatomical structures you recognize.
 2. State whether the image is normal or abnormal.
-3. If abnormal, list the key finding(s) and for each give up to two POSSIBLE conditions
-   (differential diagnosis) in plain English. Use phrases like "could indicate …" or
-   "may represent …", never a definitive diagnosis.
-4. Keep the entire reply to 80 words or less.
+3. If abnormal, list key finding(s) and for each give up to two POSSIBLE conditions (differential diagnosis) in plain English.
+   Use phrases like "could indicate …" or "may represent …", never a definitive diagnosis.
+4. For each finding, provide approximate bounding box coordinates of the abnormal region in the format [x, y, width, height], normalized to image dimensions.
+5. Keep the entire reply ≤80 words.
 
 Return EXACTLY this JSON schema only:
-{{
+{
   "caption": "...",
   "findings": [
-    {{
+    {
       "observation": "...",
-      "possibleConditions": ["...", "..."]
-    }}
+      "possibleConditions": ["...","..."],
+      "bbox": [x, y, width, height]
+    }
   ]
-}}
+}
 """.strip()
 
     resp = openai.chat.completions.create(
-    model=MODEL,
-    max_tokens=400,
-    temperature=0.2,
-    messages=[
-        {
-          "role": "user",
-          "content": [
-            {"type": "image_url", "image_url": {"url": url, "detail": "high"}},
-            {"type": "text",      "text": prompt}
-          ]
-        }
-    ],
-    response_format={"type": "json_object"},
-)
-
+        model=MODEL,
+        max_tokens=400,
+        temperature=0.2,
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "image_url", "image_url": {"url": url, "detail": "high"}},
+                    {"type": "text",      "text": prompt}
+                ]
+            }
+        ],
+        response_format={"type": "json_object"},
+    )
     return json.loads(resp.choices[0].message.content)
 
-
 # ------------------------------------------------------------
-# 2. Draw caption onto the JPEG
+# 2. Draw caption and highlight boxes onto the JPEG
 # ------------------------------------------------------------
-def draw_caption(jpeg_bytes: bytes, caption: str) -> bytes:
-    img  = Image.open(io.BytesIO(jpeg_bytes)).convert("RGB")
+def draw_annotations(jpeg_bytes: bytes, caption: str, findings: List[Dict[str, Any]]) -> bytes:
+    img = Image.open(io.BytesIO(jpeg_bytes)).convert("RGB")
     draw = ImageDraw.Draw(img)
+    width, height = img.size
+
+    # draw bounding boxes
+    for f in findings:
+        if "bbox" in f:
+            x, y, w, h = f["bbox"]
+            # denormalize
+            left = int(x * width)
+            top = int(y * height)
+            right = int((x + w) * width)
+            bottom = int((y + h) * height)
+            # draw semi-transparent red overlay
+            draw.rectangle([left, top, right, bottom], outline="red", width=3)
+
+    # draw caption at bottom
     try:
         font = ImageFont.truetype(FONT_PATH, FONT_SIZE)
     except Exception:
         font = ImageFont.load_default()
-
     wrapped = textwrap.fill(caption, width=50)
-    # measure text
-    bbox = draw.multiline_textbbox((0, 0), wrapped, font=font)
-    w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
-    x, y = 10, img.height - h - 10
-
-    # draw outline
+    bbox_text = draw.multiline_textbbox((0,0), wrapped, font=font)
+    tw, th = bbox_text[2]-bbox_text[0], bbox_text[3]-bbox_text[1]
+    x_text, y_text = 10, height - th - 10
+    # outline text
     for dx, dy in [(-1,-1),(1,-1),(-1,1),(1,1)]:
-        draw.multiline_text((x+dx, y+dy), wrapped, font=font, fill="black")
-    # draw text
-    draw.multiline_text((x, y), wrapped, font=font, fill="white")
+        draw.multiline_text((x_text+dx, y_text+dy), wrapped, font=font, fill="black")
+    draw.multiline_text((x_text, y_text), wrapped, font=font, fill="white")
 
     out = io.BytesIO()
     img.save(out, format="JPEG", quality=90)
@@ -136,10 +144,10 @@ def draw_caption(jpeg_bytes: bytes, caption: str) -> bytes:
 def summarise_study(findings_arrays: List[List[Dict[str, Any]]]) -> str:
     prompt_json = json.dumps(findings_arrays, indent=2)
     resp = openai.chat.completions.create(
-        model       = MODEL,
-        max_tokens  = 250,
-        temperature = 0.3,
-        messages    = [{"role":"user","content":(
+        model=MODEL,
+        max_tokens=250,
+        temperature=0.3,
+        messages=[{"role":"user","content":(
             f"Here are the findings arrays... {prompt_json}"
         )}],
     )
@@ -159,24 +167,20 @@ def process_study(study: dict) -> None:
 
     for url in study["imageUrls"]:
         if url in done: continue
-        # fetch
         try:
             jpeg_bytes = fetch_jpeg_from_s3(url)
         except Exception as e:
             print(f"❌ Failed to fetch {url}: {e}")
             continue
-        # analyse
         try:
             analysis = analyse_image(url)
             caption  = analysis["caption"]
-            findings = analysis["findings"]
+            findings = analysis.get("findings", [])
             findings_lists.append(findings)
         except Exception as e:
             print(f"❌ OpenAI analysis failed for {url}: {e}")
             continue
-        # draw
-        annotated = draw_caption(jpeg_bytes, caption)
-        # upload
+        annotated = draw_annotations(jpeg_bytes, caption, findings)
         ts  = int(time.time()*1000)
         key = f"annotated/{user_id}/{ts}.jpg"
         try:
@@ -191,15 +195,13 @@ def process_study(study: dict) -> None:
         print("No new images to annotate.")
         return
 
-    # summary
     try:
         agg = summarise_study(findings_lists)
     except Exception:
         agg = ""
 
     coll.update_one({"_id":ObjectId(study_id)}, {
-        "$push": {"aiInterpretation.enhancedCaptions":{"$each":new_caps},
-                   "imageUrls":{"$each":[c['annotatedUrl'] for c in new_caps]}},
+        "$push": {"aiInterpretation.enhancedCaptions":{"$each":new_caps}},
         "$set": {"aiInterpretation.aggregateSummary":agg, "aiInterpretation.updatedAt":datetime.utcnow()}
     })
     print(f"✅ Annotated {len(new_caps)} image(s) for study {study_id}")
@@ -210,7 +212,7 @@ def process_study(study: dict) -> None:
 def poll_forever() -> None:
     while True:
         try:
-            cursor = coll.find({"analysisRequested":True,"aiInterpretation.enhancedCaptions":{"$exists":False}}, sort=[("uploadedAt",1)]).limit(5)
+            cursor = coll.find({"analysisRequested":True, "aiInterpretation.enhancedCaptions":{"$exists":False}}, sort=[("uploadedAt",1)]).limit(5)
             studies = list(cursor)
             if not studies:
                 time.sleep(POLL_INTERVAL)
