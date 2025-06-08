@@ -11,6 +11,6 @@ fastapi
 uvicorn[standard]
 pydicom
 boto3
-gdcm>=3.0.10
 pylibjpeg>=2.0
 pylibjpeg-libjpeg>=2.1
+pylibjpeg-openjpeg>=2.0
