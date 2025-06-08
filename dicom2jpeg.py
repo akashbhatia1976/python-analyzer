@@ -31,6 +31,16 @@ s3 = boto3.client(
 )
 
 # ----------------------------------------------------------------------------
+# 1a) Configure pydicom to use the pylibjpeg stack for decompression
+# ----------------------------------------------------------------------------
+# Must come *before* you read any compressed file
+# If you ever switch to python-gdcm instead, remove these three lines.
+import pydicom.config
+pydicom.config.image_handlers = [pydicom.pixel_data_handlers.pylibjpeg_handler]
+
+from pydicom.pixel_data_handlers.util import apply_voi_lut
+
+# ----------------------------------------------------------------------------
 # 2) FastAPI app
 # ----------------------------------------------------------------------------
 app = FastAPI(
@@ -68,12 +78,33 @@ def dicom_s3_to_jpeg_and_upload(dicom_key: str, study_id: str) -> tuple[bytes, s
         raise HTTPException(status_code=404, detail=f"DICOM not found: {dicom_key}")
 
     dicom_bytes = obj["Body"].read()
-    ds = pydicom.dcmread(io.BytesIO(dicom_bytes))
-    arr = ds.pixel_array.astype(np.float32)
-    mn, mx = arr.min(), arr.max()
-    img8 = ((arr - mn) / (mx - mn) * 255).clip(0,255).astype(np.uint8) if mx > mn else np.zeros_like(arr, dtype=np.uint8)
 
-    img = Image.fromarray(img8)
+    # read dataset
+    ds = pydicom.dcmread(io.BytesIO(dicom_bytes), force=True)
+
+    # decompress if needed (pydicom>=2.x)
+    if ds.file_meta.TransferSyntaxUID.is_compressed:
+        ds.decompress()
+
+    # Extract the pixel array and apply any VOI LUT/window-level transforms
+    arr = ds.pixel_array
+    # For MRIs and CTs windowed images, apply VOI LUT if present
+    arr = apply_voi_lut(arr, ds)
+
+    # normalize to 0–255 8-bit
+    arr = arr.astype(np.float32)
+    mn, mx = arr.min(), arr.max()
+    if mx > mn:
+        arr = (arr - mn) / (mx - mn) * 255.0
+    else:
+        arr = np.zeros_like(arr)
+    img8 = arr.clip(0, 255).astype(np.uint8)
+
+    # handle multi-channel vs mono
+    mode = "L" if img8.ndim == 2 else "RGB"
+    img = Image.fromarray(img8, mode=mode)
+
+    # encode JPEG
     buf = io.BytesIO()
     img.save(buf, format="JPEG")
     jpeg_bytes = buf.getvalue()
