@@ -3,12 +3,13 @@
 import os
 import io
 import time
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from pydantic import BaseModel
 import boto3
 import pydicom
 import numpy as np
 from PIL import Image
+from fastapi.responses import JSONResponse
 
 # ----------------------------------------------------------------------------
 # 1) Read AWS credentials and S3 bucket from environment variables
