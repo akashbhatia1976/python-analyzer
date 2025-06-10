@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # ----------------------------------------------------------------
-# ai_worker.py  –  Annotate radiology previews with OpenAI GPT-4o(Vision)
-#               via the aiRequests queue in MongoDB
+# ai_worker.py  –  Annotate radiology previews via aiRequests queue in MongoDB
 # ----------------------------------------------------------------
 
 import os
@@ -58,20 +57,21 @@ def fetch_jpeg_from_s3(presigned_url: str) -> bytes:
 # 1. OpenAI – per-image analysis with strict JSON response
 # ------------------------------------------------------------
 def analyse_image(url: str) -> Dict[str, Any]:
-    prompt = f"""
-You are an experienced radiologist explaining an image to a non-specialist.
-URL: {url}
-1. Describe main anatomical structures.
-2. State normal or abnormal.
-3. If abnormal, list findings with up to two possible conditions.
-4. For each, provide bbox [x,y,width,height] normalized.
-5. Reply ≤80 words.
-Return ONLY this JSON:
-{
-  "caption":"...",
-  "findings":[{"observation":"...","possibleConditions":["...","..."],"bbox":[x,y,w,h]}]
-}
-""".strip()
+    prompt = textwrap.dedent(f"""
+        You are an experienced radiologist explaining an image to a non-specialist.
+        URL: {url}
+        1. Describe main anatomical structures.
+        2. State normal or abnormal.
+        3. If abnormal, list findings with up to two possible conditions.
+        4. For each, provide bbox [x,y,width,height] normalized.
+        5. Reply ≤80 words.
+        Return ONLY this JSON:
+        {{
+          "caption":"...",
+          "findings":[{{"observation":"...","possibleConditions":["...","..."],"bbox":[x,y,w,h]}}]
+        }}
+    """
+    ).strip()
     try:
         resp = openai.chat.completions.create(
             model=MODEL,
@@ -91,6 +91,7 @@ Return ONLY this JSON:
         print(f"❌ analyse_image failed for {url}: {repr(e)}")
         traceback.print_exc()
         raise
+
 
 # ------------------------------------------------------------
 # 2. Draw caption & highlight bounding boxes
@@ -136,7 +137,6 @@ def summarise_study(arrays: List[List[Dict[str, Any]]]) -> str:
 # ------------------------------------------------------------
 def process_study_request(study: dict) -> None:
     sid = study["_id"]
-    # find the first pending request
     pending = next((r for r in study.get("aiRequests", []) if r.get("status") == "pending"), None)
     if not pending:
         return
@@ -150,16 +150,11 @@ def process_study_request(study: dict) -> None:
             cap = res.get("caption", "")
             finds = res.get("findings", [])
             ann_bytes = draw_annotations(img_bytes, cap, finds)
-            key = f"annotated/{study['userId']}/{int(time.time() * 1000)}.jpg"
+            key = f"annotated/{study['userId']}/{int(time.time()*1000)}.jpg"
             s3.put_object(Bucket=S3_BUCKET, Key=key, Body=ann_bytes, ContentType="image/jpeg")
             ann_url = s3.generate_presigned_url("get_object", Params={"Bucket": S3_BUCKET, "Key": key}, ExpiresIn=3600)
 
-            new_caps.append({
-                "url": url,
-                "caption": cap,
-                "annotatedUrl": ann_url,
-                "timestamp": datetime.utcnow()
-            })
+            new_caps.append({"url": url, "caption": cap, "annotatedUrl": ann_url, "timestamp": datetime.utcnow()})
             all_findings.append(finds)
         except Exception as e:
             print(f"Error processing {url}: {e}")
@@ -172,19 +167,13 @@ def process_study_request(study: dict) -> None:
     summary = summarise_study(all_findings)
     coll.update_one(
         {"_id": ObjectId(sid), "aiRequests.requestedAt": req_ts},
-        {
-            "$set": {
-                "aiRequests.$.interpretation": {
-                    "enhancedCaptions": new_caps,
-                    "aggregateSummary": summary
-                },
-                "aiRequests.$.status": "completed",
-                "aiRequests.$.completedAt": datetime.utcnow()
-            }
-        }
+        {"$set": {
+            "aiRequests.$.interpretation": {"enhancedCaptions": new_caps, "aggregateSummary": summary},
+            "aiRequests.$.status": "completed",
+            "aiRequests.$.completedAt": datetime.utcnow()
+        }}
     )
 
-    # clear the top-level flag if no more pending
     remaining = coll.count_documents({
         "_id": ObjectId(sid),
         "aiRequests": {"$elemMatch": {"status": "pending"}}
@@ -202,10 +191,7 @@ if __name__ == "__main__":
     print(f"[{datetime.utcnow().isoformat()}] 🟢 Worker started, polling every {POLL_INTERVAL}s.")
     while True:
         try:
-            studies = list(coll.find({
-                "analysisRequested": True,
-                "aiRequests": {"$elemMatch": {"status": "pending"}}
-            }).limit(5))
+            studies = list(coll.find({"analysisRequested": True, "aiRequests": {"$elemMatch": {"status": "pending"}}}).limit(5))
             print(f"[Worker] ⏱ polled, found {len(studies)} pending requests.")
             for s in studies:
                 process_study_request(s)
