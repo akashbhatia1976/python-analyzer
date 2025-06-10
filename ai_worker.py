@@ -58,43 +58,39 @@ def fetch_jpeg_from_s3(presigned_url: str) -> bytes:
 # 1. OpenAI – per-image analysis with strict JSON response
 # ------------------------------------------------------------
 def analyse_image(url: str) -> Dict[str, Any]:
-    prompt = textwrap.dedent(f"""
-        You are an experienced radiologist explaining an image to a non-specialist.
-        URL: {url}
-        1. Describe main anatomical structures.
-        2. State whether normal or abnormal.
-        3. If abnormal, list findings with up to two possible conditions.
-        4. For each, provide bbox [x,y,width,height] normalized to the image.
-        5. Reply in ≤80 words.
-        Return ONLY this JSON:
-        {{
-          "caption": "...",
-          "findings": [{{"observation":"...","possibleConditions":["...","..."],"bbox":[x,y,w,h]}}]
-        }}
-    """).strip()
+    prompt = f"""
+You are an experienced radiologist explaining an image to a non-specialist.
+URL: {url}
+1. Describe main anatomical structures.
+2. State normal or abnormal.
+3. If abnormal, list findings with up to two possible conditions.
+4. For each, provide bbox [x,y,width,height] normalized.
+5. Reply ≤80 words.
+Return ONLY this JSON:
+{
+  "caption":"...",
+  "findings":[{"observation":"...","possibleConditions":["...","..."],"bbox":[x,y,w,h]}]
+}
+""".strip()
     try:
         resp = openai.chat.completions.create(
             model=MODEL,
             max_tokens=400,
             temperature=0.2,
             messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "image_url", "image_url": {"url": url, "detail": "high"}},
-                        {"type": "text", "text": prompt}
-                    ]
-                }
+                {"role":"user","content":[
+                    {"type":"image_url","image_url":{"url":url,"detail":"high"}},
+                    {"type":"text","text":prompt}
+                ]}
             ],
-            response_format={"type": "json_object"},
+            response_format={"type":"json_object"},
         )
-        # JSON object returned directly
-        return resp.choices[0].message.content
+        # resp.choices[0].message.content is a JSON string
+        return json.loads(resp.choices[0].message.content)
     except Exception as e:
         print(f"❌ analyse_image failed for {url}: {repr(e)}")
         traceback.print_exc()
         raise
-
 
 # ------------------------------------------------------------
 # 2. Draw caption & highlight bounding boxes
