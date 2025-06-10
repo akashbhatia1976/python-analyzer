@@ -101,7 +101,7 @@ def summarise_study(arrays: List[List[Dict[str,Any]]]) -> str:
 # ------------------------------------------------------------
 def process_study_request(study: dict) -> None:
     sid = study['_id']
-    pending = next((r for r in study.get('aiRequests', []) if r['status']=='pending'), None)
+    pending = next((r for r in study.get('aiRequests', []) if r.get('status') == 'pending'), None)
     if not pending: return
     req_ts = pending['requestedAt']
 
