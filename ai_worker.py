@@ -83,7 +83,9 @@ def analyse_image_bytes(img_bytes: bytes, source_desc: str = None) -> Dict[str, 
             ],
             response_format={"type": "json_object"},
         )
-        return resp.choices[0].message.content  # parsed JSON
+        raw = resp.choices[0].message.content
+    # ensure a dict
+    return json.loads(raw) if isinstance(raw, str) else raw  # parsed JSON
     except Exception as e:
         print(f"❌ analyse_image_bytes failed: {e}")
         traceback.print_exc()
