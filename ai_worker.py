@@ -80,8 +80,8 @@ def analyse_image_bytes(img_bytes: bytes, source_url: str = None) -> Dict[str, A
                 {
                     "role": "user",
                     "content": [
-                        {"type": "image_bytes", "image_bytes": {"base64": encoded}},
-                        {"type": "text",        "text": prompt}
+                        {"type": "file", "file": {"filename": "scan.jpg", "content": encoded}},
+                        {"type": "text", "text": prompt}
                     ]
                 }
             ],
