@@ -21,13 +21,13 @@ from pymongo import MongoClient
 from bson import ObjectId
 
 # -------------------- CONFIG --------------------------------
-openai.api_key = os.getenv("OPENAI_API_KEY")
-MONGO_URI      = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
-DB_NAME        = os.getenv("MONGO_DB", "medicalReportsTestDB")
-COLL           = "imagingStudies"
+openai.api_key   = os.getenv("OPENAI_API_KEY")
+MONGO_URI        = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
+DB_NAME          = os.getenv("MONGO_DB", "medicalReportsTestDB")
+COLL             = "imagingStudies"
 
-AWS_REGION     = os.getenv("S3_REGION")
-S3_BUCKET      = os.getenv("S3_BUCKET_NAME")
+AWS_REGION       = os.getenv("S3_REGION")
+S3_BUCKET        = os.getenv("S3_BUCKET_NAME")
 s3 = boto3.client(
     "s3",
     region_name           = AWS_REGION,
@@ -40,17 +40,20 @@ FONT_PATH     = os.getenv("CAPTION_FONT", "/usr/share/fonts/truetype/dejavu/Deja
 FONT_SIZE     = int(os.getenv("CAPTION_FONT_SIZE", "20"))
 POLL_INTERVAL = int(os.getenv("WORKER_POLL_SECONDS", "10"))
 
-# Initialize MongoDB
 mongo = MongoClient(MONGO_URI)
 coll  = mongo[DB_NAME][COLL]
 
 # ------------------------------------------------------------
-# 1. OpenAI – per-image analysis with raw bytes
+# 1. Fetch JPEG bytes from S3 by key
+# ------------------------------------------------------------
+def fetch_jpeg_by_key(key: str) -> bytes:
+    return s3.get_object(Bucket=S3_BUCKET, Key=key)["Body"].read()
+
+# ------------------------------------------------------------
+# 2. Analyse image bytes via OpenAI
 # ------------------------------------------------------------
 def analyse_image_bytes(img_bytes: bytes, source_desc: str = None) -> Dict[str, Any]:
-    # Create a data URI for the image bytes
-    data_uri = "data:image/jpeg;base64," + base64.b64encode(img_bytes).decode("utf-8")
-
+    data_uri = "data:image/jpeg;base64," + base64.b64encode(img_bytes).decode('utf-8')
     prompt = textwrap.dedent(f"""
         You are an experienced radiologist explaining an image to a non-specialist.
         URL: {source_desc or data_uri}
@@ -66,33 +69,30 @@ def analyse_image_bytes(img_bytes: bytes, source_desc: str = None) -> Dict[str, 
         }}
     """
     ).strip()
-
     try:
         resp = openai.chat.completions.create(
             model=MODEL,
             max_tokens=400,
             temperature=0.2,
             messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "image_url",   "image_url":   {"url": data_uri,      "detail": "high"}},
-                        {"type": "text",        "text":         prompt}
-                    ]
-                }
+                {"role": "user", "content": [
+                    {"type": "image_url", "image_url": {"url": data_uri, "detail": "high"}},
+                    {"type": "text",      "text": prompt}
+                ]}
             ],
-            response_format={"type": "json_object"},
+            response_format={"type": "json_object"}
         )
         raw = resp.choices[0].message.content
-    # ensure a dict
-    return json.loads(raw) if isinstance(raw, str) else raw  # parsed JSON
+        if isinstance(raw, str):
+            return json.loads(raw)
+        return raw
     except Exception as e:
         print(f"❌ analyse_image_bytes failed: {e}")
         traceback.print_exc()
         raise
 
 # ------------------------------------------------------------
-# 2. Draw caption & highlight bounding boxes
+# 3. Draw caption & highlight bounding boxes
 # ------------------------------------------------------------
 def draw_annotations(jpeg: bytes, caption: str, findings: List[Dict[str, Any]]) -> bytes:
     img = Image.open(io.BytesIO(jpeg)).convert("RGB")
@@ -115,7 +115,7 @@ def draw_annotations(jpeg: bytes, caption: str, findings: List[Dict[str, Any]]) 
     return buf.getvalue()
 
 # ------------------------------------------------------------
-# 3. Summarize study findings
+# 4. Summarize study findings
 # ------------------------------------------------------------
 def summarise_study(arrays: List[List[Dict[str, Any]]]) -> str:
     js = json.dumps(arrays, indent=2)
@@ -128,7 +128,7 @@ def summarise_study(arrays: List[List[Dict[str, Any]]]) -> str:
     return resp.choices[0].message.content.strip()
 
 # ------------------------------------------------------------
-# 4. Process a single pending aiRequests entry
+# 5. Process a single pending aiRequests entry
 # ------------------------------------------------------------
 def process_study_request(study: dict) -> None:
     sid = study["_id"]
@@ -140,18 +140,14 @@ def process_study_request(study: dict) -> None:
     new_caps, all_findings = [], []
     for key in study.get("previewKeys", []):
         try:
-            img_bytes = s3.get_object(Bucket=S3_BUCKET, Key=key)["Body"].read()
+            img_bytes = fetch_jpeg_by_key(key)
             res = analyse_image_bytes(img_bytes, source_desc=key)
             cap = res.get("caption", "")
             finds = res.get("findings", [])
             ann_bytes = draw_annotations(img_bytes, cap, finds)
             ann_key = f"annotated/{study['userId']}/{int(time.time() * 1000)}.jpg"
             s3.put_object(Bucket=S3_BUCKET, Key=ann_key, Body=ann_bytes, ContentType="image/jpeg")
-            ann_url = s3.generate_presigned_url(
-                "get_object",
-                Params={"Bucket": S3_BUCKET, "Key": ann_key},
-                ExpiresIn=3600
-            )
+            ann_url = s3.generate_presigned_url("get_object", Params={"Bucket": S3_BUCKET, "Key": ann_key}, ExpiresIn=3600)
             new_caps.append({"url": ann_url, "caption": cap, "annotatedUrl": ann_url, "timestamp": datetime.utcnow()})
             all_findings.append(finds)
         except Exception as e:
@@ -182,7 +178,7 @@ def process_study_request(study: dict) -> None:
     print(f"✅ Processed request {req_ts}; {remaining} pending left.")
 
 # ------------------------------------------------------------
-# 5. Poll loop
+# 6. Poll loop
 # ------------------------------------------------------------
 if __name__ == "__main__":
     print(f"[{datetime.utcnow().isoformat()}] 🟢 Worker started, polling every {POLL_INTERVAL}s.")
