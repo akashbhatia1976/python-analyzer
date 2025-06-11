@@ -98,37 +98,80 @@ def draw_annotations(jpeg: bytes, caption: str, findings: List[Dict[str, Any]]) 
     img = Image.open(io.BytesIO(jpeg)).convert("RGB")
     draw = ImageDraw.Draw(img, "RGBA")
     w, h = img.size
+    
+    # Only draw bounding boxes if there are findings with bboxes
     for f in findings:
-        bbox = f.get("bbox", [0, 0, 0, 0])
-        x, y, bw, bh = bbox
-        draw.rectangle([
-            int(x * w), int(y * h),
-            int((x + bw) * w), int((y + bh) * h)
-        ], outline=(255, 0, 0, 255), width=3)
+        bbox = f.get("bbox", [])
+        if len(bbox) == 4:  # Ensure valid bbox
+            x, y, bw, bh = bbox
+            # Convert normalized coordinates to pixel coordinates
+            x1, y1 = int(x * w), int(y * h)
+            x2, y2 = int((x + bw) * w), int((y + bh) * h)
+            
+            # Draw red rectangle for abnormal findings
+            draw.rectangle([x1, y1, x2, y2], outline=(255, 0, 0, 255), width=3)
+    
+    # Add caption at bottom of image
     try:
         font = ImageFont.truetype(FONT_PATH, FONT_SIZE)
     except:
         font = ImageFont.load_default()
-    draw.multiline_text((10, h - FONT_SIZE - 10), caption, font=font, fill=(255, 255, 255, 255))
+    
+    # Wrap text if too long
+    wrapped_text = textwrap.fill(caption, width=80)
+    draw.multiline_text((10, h - 60), wrapped_text, font=font, fill=(255, 255, 255, 255))
+    
     buf = io.BytesIO()
     img.save(buf, format="JPEG", quality=90)
     return buf.getvalue()
 
 # ------------------------------------------------------------
-# 4. Summarize study findings
+# 4. Summarize study findings - FIXED to return plain text
 # ------------------------------------------------------------
 def summarise_study(arrays: List[List[Dict[str, Any]]]) -> str:
-    js = json.dumps(arrays, indent=2)
-    resp = openai.chat.completions.create(
-        model=MODEL,
-        max_tokens=250,
-        temperature=0.3,
-        messages=[{"role": "user", "content": f"Provide a brief summary in JSON: {js}"}],
-    )
-    return resp.choices[0].message.content.strip()
+    # Flatten all findings into a single list
+    all_findings = []
+    for finding_array in arrays:
+        all_findings.extend(finding_array)
+    
+    if not all_findings:
+        return "No significant abnormalities detected in this study."
+    
+    # Create a summary prompt that returns plain text
+    findings_text = []
+    for i, finding in enumerate(all_findings, 1):
+        obs = finding.get("observation", "")
+        conditions = finding.get("possibleConditions", [])
+        if obs:
+            findings_text.append(f"Finding {i}: {obs}")
+            if conditions:
+                findings_text.append(f"Possible conditions: {', '.join(conditions)}")
+    
+    findings_summary = "\n".join(findings_text)
+    
+    prompt = f"""
+    Based on these radiological findings, provide a concise medical summary in plain text (not JSON):
+    
+    {findings_summary}
+    
+    Provide a brief, professional summary suitable for a medical report. Use clear, medical terminology but keep it accessible. Limit to 3-4 sentences.
+    """
+    
+    try:
+        resp = openai.chat.completions.create(
+            model=MODEL,
+            max_tokens=200,
+            temperature=0.3,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return resp.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"Error generating summary: {e}")
+        # Fallback to simple text summary
+        return f"Analysis completed for {len(all_findings)} findings. " + findings_summary
 
 # ------------------------------------------------------------
-# 5. Process a single pending aiRequests entry
+# 5. Process a single pending aiRequests entry - FIXED URLs
 # ------------------------------------------------------------
 def process_study_request(study: dict) -> None:
     sid = study["_id"]
@@ -140,16 +183,33 @@ def process_study_request(study: dict) -> None:
     new_caps, all_findings = [], []
     for key in study.get("previewKeys", []):
         try:
+            # Fetch original image
             img_bytes = fetch_jpeg_by_key(key)
+            
+            # Analyze with AI
             res = analyse_image_bytes(img_bytes, source_desc=key)
             cap = res.get("caption", "")
             finds = res.get("findings", [])
+            
+            # Create annotated version
             ann_bytes = draw_annotations(img_bytes, cap, finds)
             ann_key = f"annotated/{study['userId']}/{int(time.time() * 1000)}.jpg"
             s3.put_object(Bucket=S3_BUCKET, Key=ann_key, Body=ann_bytes, ContentType="image/jpeg")
+            
+            # Generate URLs for both original and annotated
+            orig_url = s3.generate_presigned_url("get_object", Params={"Bucket": S3_BUCKET, "Key": key}, ExpiresIn=3600)
             ann_url = s3.generate_presigned_url("get_object", Params={"Bucket": S3_BUCKET, "Key": ann_key}, ExpiresIn=3600)
-            new_caps.append({"url": ann_url, "caption": cap, "annotatedUrl": ann_url, "timestamp": datetime.utcnow()})
+            
+            # FIXED: Correct URLs and include findings
+            new_caps.append({
+                "url": orig_url,           # ← Original image URL (no annotations)
+                "annotatedUrl": ann_url,   # ← Annotated image URL (with boxes)
+                "caption": cap,
+                "raw": {"findings": finds}, # ← Include findings for frontend
+                "timestamp": datetime.utcnow()
+            })
             all_findings.append(finds)
+            
         except Exception as e:
             print(f"Error processing key {key}: {e}")
             traceback.print_exc()
@@ -158,11 +218,17 @@ def process_study_request(study: dict) -> None:
     if not new_caps:
         return
 
+    # Generate plain text summary
     summary = summarise_study(all_findings)
+    
+    # Update database
     coll.update_one(
         {"_id": ObjectId(sid), "aiRequests.requestedAt": req_ts},
         {"$set": {
-            "aiRequests.$.interpretation": {"enhancedCaptions": new_caps, "aggregateSummary": summary},
+            "aiRequests.$.interpretation": {
+                "enhancedCaptions": new_caps,
+                "aggregateSummary": summary  # Now plain text, not JSON
+            },
             "aiRequests.$.status": "completed",
             "aiRequests.$.completedAt": datetime.utcnow()
         }}
@@ -195,4 +261,3 @@ if __name__ == "__main__":
             print(f"⚠️ Worker error: {e}")
             traceback.print_exc()
         time.sleep(POLL_INTERVAL)
-
