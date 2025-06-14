@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from openai_extract_fields_combined import analyze_file
+from openai_extract_fields_combined import analyze_pdf
 import os
 
 app = Flask(__name__)
@@ -26,11 +26,10 @@ def analyze():
     print(f"🧾 user_id = {user_id}, report_name = {report_name}, report_date = {report_date}", flush=True)
 
     try:
-        # Auto-detect PDF vs image
-        result = analyze_file(temp_path, user_id, report_name, report_date)
+        result = analyze_pdf(temp_path, user_id=user_id, report_name=report_name, report_date=report_date)
         return jsonify(result)
     except Exception as e:
-        print(f"❌ Exception in /analyze: {e}", flush=True)
+        print(f"❌ Exception in /analyze: {str(e)}", flush=True)
         return jsonify({ "error": str(e) }), 500
 
 if __name__ == "__main__":
