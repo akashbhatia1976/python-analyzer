@@ -20,6 +20,73 @@ import boto3
 from pymongo import MongoClient
 from bson import ObjectId
 
+
+
+
+
+# Force output flushing
+import sys
+sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 1)
+sys.stderr = os.fdopen(sys.stderr.fileno(), 'w', 1)
+
+print("🚀 ============================================")
+print("🚀 AI WORKER STARTING...")
+print(f"🚀 Python version: {sys.version}")
+print(f"🚀 Working directory: {os.getcwd()}")
+print(f"🚀 Environment variables:")
+print(f"  - OPENAI_API_KEY: {'✅ SET' if os.getenv('OPENAI_API_KEY') else '❌ MISSING'}")
+print(f"  - MONGODB_URI: {'✅ SET' if os.getenv('MONGODB_URI') else '❌ MISSING'}")
+print(f"  - MONGO_DB: {os.getenv('MONGO_DB', '❌ NOT SET')}")
+print(f"  - S3_BUCKET_NAME: {'✅ SET' if os.getenv('S3_BUCKET_NAME') else '❌ MISSING'}")
+print(f"  - S3_ACCESS_KEY_ID: {'✅ SET' if os.getenv('S3_ACCESS_KEY_ID') else '❌ MISSING'}")
+print(f"  - S3_SECRET_ACCESS_KEY: {'✅ SET' if os.getenv('S3_SECRET_ACCESS_KEY') else '❌ MISSING'}")
+print(f"  - S3_REGION: {os.getenv('S3_REGION', '❌ NOT SET')}")
+print("🚀 ============================================")
+
+print("📦 Importing dependencies...")
+try:
+    import io
+    print("  ✅ io")
+    import json
+    print("  ✅ json")
+    import time
+    print("  ✅ time")
+    import textwrap
+    print("  ✅ textwrap")
+    import traceback
+    print("  ✅ traceback")
+    import base64
+    print("  ✅ base64")
+    from datetime import datetime
+    print("  ✅ datetime")
+    from typing import List, Dict, Any
+    print("  ✅ typing")
+    from urllib.parse import urlparse
+    print("  ✅ urllib.parse")
+
+    import openai
+    print("  ✅ openai")
+    from PIL import Image, ImageDraw, ImageFont
+    print("  ✅ PIL")
+    import boto3
+    print("  ✅ boto3")
+    from pymongo import MongoClient
+    print("  ✅ pymongo")
+    from bson import ObjectId
+    print("  ✅ bson")
+    
+    print("🎯 All dependencies imported successfully!")
+    
+except Exception as e:
+    print(f"❌ Import error: {e}")
+    traceback.print_exc()
+    sys.exit(1)
+
+# Rest of your existing code starting from CONFIG section...
+
+
+
+
 # -------------------- CONFIG --------------------------------
 openai.api_key   = os.getenv("OPENAI_API_KEY")
 MONGO_URI        = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
