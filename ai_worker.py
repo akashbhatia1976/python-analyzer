@@ -90,7 +90,7 @@ except Exception as e:
 # -------------------- CONFIG --------------------------------
 openai.api_key   = os.getenv("OPENAI_API_KEY")
 MONGO_URI        = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
-DB_NAME          = os.getenv("MONGO_DB", "medicalReportsTestDB")
+DB_NAME          = os.getenv("MONGODB_DB", "medicalReportsTestDB")
 COLL             = "imagingStudies"
 
 AWS_REGION       = os.getenv("S3_REGION")
