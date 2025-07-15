@@ -43,52 +43,6 @@ POLL_INTERVAL = int(os.getenv("WORKER_POLL_SECONDS", "10"))
 mongo = MongoClient(MONGO_URI)
 coll  = mongo[DB_NAME][COLL]
 
-
-
-
-#debug lines - to remove later
-
-# Add this after: coll = mongo[DB_NAME][COLL]
-try:
-    print(f"🔍 MongoDB Debug Info:")
-    print(f"  - Connection URI: {MONGO_URI}")
-    print(f"  - Database name: {DB_NAME}")
-    print(f"  - Collection: {COLL}")
-    print(f"  - Available databases: {mongo.list_database_names()}")
-    
-    # Check if our database exists
-    if DB_NAME in mongo.list_database_names():
-        print(f"  ✅ Database '{DB_NAME}' exists")
-        collections = mongo[DB_NAME].list_collection_names()
-        print(f"  - Collections in {DB_NAME}: {collections}")
-        
-        if COLL in collections:
-            print(f"  ✅ Collection '{COLL}' exists")
-            total_docs = coll.count_documents({})
-            print(f"  - Total documents in {COLL}: {total_docs}")
-            
-            # Check for any studies with analysisRequested
-            requested_count = coll.count_documents({"analysisRequested": True})
-            print(f"  - Studies with analysisRequested=True: {requested_count}")
-            
-            # Check for any studies with pending AI requests
-            pending_count = coll.count_documents({
-                "aiRequests": {"$elemMatch": {"status": "pending"}}
-            })
-            print(f"  - Studies with pending AI requests: {pending_count}")
-            
-            # Show a sample document
-            sample = coll.find_one({})
-            if sample:
-                print(f"  - Sample document structure: {list(sample.keys())}")
-        else:
-            print(f"  ❌ Collection '{COLL}' not found")
-    else:
-        print(f"  ❌ Database '{DB_NAME}' not found")
-        
-except Exception as e:
-    print(f"❌ Database debug failed: {e}")
-    
 # ------------------------------------------------------------
 # 1. Fetch JPEG bytes from S3 by key
 # ------------------------------------------------------------
