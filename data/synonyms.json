@@ -128,8 +128,8 @@
   },
   "Cholesterol Tests": {
       "Total Cholesterol": ["total cholesterol"],
-      "HDL Cholesterol": ["hdl cholesterol", "S.HDL Cholesterol", "hdl cholesterol serum", "s.hdl cholesterol"],
-      "LDL Cholesterol": ["ldl cholesterol", "VLDL cholesterol measurement"],
+      "HDL Cholesterol": ["hdl cholesterol", "S.HDL Cholesterol", "hdl cholesterol serum", "s.hdl cholesterol", "H.D.L Cholestrol", "h.d.l cholestrol"],
+      "LDL Cholesterol": ["ldl cholesterol", "VLDL cholesterol measurement", "L.D.L Cholestrol", "l.d.l cholestrol"],
       "Triglycerides": ["triglycerides", "Serum VLDL triglyceride measurement", "serum triglycerides"],
       "Serum Cholesterol": [
         "Serum cholesterol studies", "serum cholesterol"],
@@ -138,7 +138,9 @@
       "CHOL/HDL Chol (Ratio)": [
           "CHOL/HDL Chol (Ratio)",
             "CHOL/HDL CHOL(Ratio)",
-            "CHOL/HDL Chol(Ratio)"
+            "CHOL/HDL Chol(Ratio)",
+            "TCHOL/HDL Ratio",
+            "tchol/hdl ratio"
       ],
       "LDL CHOL/HDL Ratio": [
         "LDL CHOL/HDL Ratio"
