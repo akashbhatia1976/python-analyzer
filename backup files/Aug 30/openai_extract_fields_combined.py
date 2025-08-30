@@ -3,24 +3,11 @@ import json
 import re
 import requests
 import tempfile
-import time
 from datetime import datetime, date
 from pdf2image import convert_from_path
 import pytesseract
 from PIL import Image
 from dotenv import load_dotenv
-
-
-
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_MODEL   = os.getenv("OPENAI_MODEL", "gpt-4o-mini")  # NEW default
-OPENAI_RETRIES = int(os.getenv("OPENAI_RETRIES", "3"))     # NEW
-RETRY_BASE_MS  = int(os.getenv("OPENAI_RETRY_BASE_MS", "1500"))  # NEW
-
-HEADERS = {
-    "Authorization": f"Bearer {OPENAI_API_KEY}",
-    "Content-Type": "application/json",
-}
 
 # --- Load environment
 load_dotenv()
@@ -94,48 +81,30 @@ def extract_json_content(content):
         return None
 
 
-def _post_openai_with_retry(payload):
-    url = "https://api.openai.com/v1/chat/completions"
-    for attempt in range(OPENAI_RETRIES):
-        resp = requests.post(url, headers=HEADERS, json=payload, timeout=120)
-        if resp.status_code == 429 and attempt < OPENAI_RETRIES - 1:
-            wait = (attempt + 1) * (RETRY_BASE_MS / 1000.0)
-            print(f"⏳ OpenAI 429; retrying in {wait:.1f}s (attempt {attempt+1}/{OPENAI_RETRIES})")
-            time.sleep(wait)
-            continue
-        resp.raise_for_status()
-        return resp
-    return resp  # will have raised already if not OK
-
-
 def analyze_with_openai(text):
     try:
         prompt = (
             "Analyze the following medical report text and extract details into structured JSON. "
-            "Ensure the response contains these categories: 'Patient Information', 'Medical Parameters', and 'Doctor's Notes'. "  # ASCII apostrophe to match your keys
+            "Ensure the response contains these categories: 'Patient Information', 'Medical Parameters', and 'Doctor’s Notes'. "
             "Do NOT omit any category, even if some data is missing. "
             "Each parameter in 'Medical Parameters' must be structured as an object with fields: 'Value', 'Reference Range', and 'Unit'. "
             "If the reference range is not provided, return 'Reference Range': 'N/A'. "
             "If the unit is not specified, return 'Unit': 'N/A'. "
             "Ensure numerical values are extracted accurately without extra text. "
-            "If there are no doctor's notes, return 'Doctor's Notes': []. "
+            "If there are no doctor’s notes, return 'Doctor’s Notes': []. "
             "Respond in JSON format ONLY."
         )
-
-        payload = {
-            "model": OPENAI_MODEL,  # ← NEW (env-driven; default gpt-4o-mini)
+        data = {
+            "model": "gpt-4-turbo-2024-04-09",
             "messages": [
                 {"role": "system", "content": "You are an AI assistant specializing in medical data extraction."},
                 {"role": "user", "content": f"{prompt}\n\n{text}"},
             ],
             "temperature": 0,
-            # JSON mode for structured output (supported by 4o/4o-mini):
-            "response_format": {"type": "json_object"},  # ← NEW
-            # no max_tokens → let the model respond fully
+            "max_tokens": 4096,
         }
-
-        print(f"🧠 OpenAI model: {OPENAI_MODEL}")
-        resp = _post_openai_with_retry(payload)  # ← NEW (retry/backoff)
+        resp = requests.post("https://api.openai.com/v1/chat/completions", headers=HEADERS, json=data)
+        resp.raise_for_status()
         content = resp.json().get("choices", [])[0].get("message", {}).get("content", "").strip()
         if not content:
             raise ValueError("Empty content from OpenAI.")
