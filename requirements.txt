@@ -14,3 +14,4 @@ boto3
 pylibjpeg>=2.0
 pylibjpeg-libjpeg>=2.1
 pylibjpeg-openjpeg>=2.0
+pillow-heif==0.16.0

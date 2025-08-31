@@ -9,36 +9,21 @@ from pdf2image import convert_from_path
 import pytesseract
 from PIL import Image
 from dotenv import load_dotenv
-from PIL import Image, ImageOps
 
 
-try:
-    import pillow_heif
-    pillow_heif.register_heif_opener()
-    print("🟢 HEIF/HEIC support enabled", flush=True)
-except Exception as e:
-    print("⚠️ HEIF support not available:", e, flush=True)
 
-
-# --- Load environment
-load_dotenv()
-
-# --- OpenAI + retry config (env-driven) ---
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_MODEL   = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-OPENAI_RETRIES = int(os.getenv("OPENAI_RETRIES", "3"))
-RETRY_BASE_MS  = int(os.getenv("OPENAI_RETRY_BASE_MS", "1500"))
-
-if not OPENAI_API_KEY:
-    raise RuntimeError("OPENAI_API_KEY is not set")
+OPENAI_MODEL   = os.getenv("OPENAI_MODEL", "gpt-4o-mini")  # NEW default
+OPENAI_RETRIES = int(os.getenv("OPENAI_RETRIES", "3"))     # NEW
+RETRY_BASE_MS  = int(os.getenv("OPENAI_RETRY_BASE_MS", "1500"))  # NEW
 
 HEADERS = {
     "Authorization": f"Bearer {OPENAI_API_KEY}",
     "Content-Type": "application/json",
 }
 
-REQUIRED_CATEGORIES = ["Patient Information", "Medical Parameters", "Doctor's Notes"]
-
+# --- Load environment
+load_dotenv()
 
 # --- Synonym & Category Mappings
 with open("data/synonyms.json", "r") as f:
@@ -77,7 +62,13 @@ def normalize_test_name(name):
         "normalized": bool(canonical)
     }
 
-
+# --- OpenAI Setup
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+HEADERS = {
+    "Authorization": f"Bearer {OPENAI_API_KEY}",
+    "Content-Type": "application/json",
+}
+REQUIRED_CATEGORIES = ["Patient Information", "Medical Parameters", "Doctor's Notes"]
 
 
 def extract_text_from_pdf(pdf_path):
@@ -90,15 +81,9 @@ def extract_text_from_pdf(pdf_path):
 
 
 def extract_text_from_image(image_path):
+    """Extract text from an image file using OCR."""
     img = Image.open(image_path)
-    try:
-        img = ImageOps.exif_transpose(img)   # respect iPhone EXIF orientation
-    except Exception:
-        pass
-    if img.mode not in ("L", "RGB"):
-        img = img.convert("RGB")             # ensure tesseract-friendly mode
     return pytesseract.image_to_string(img)
-
 
 
 def extract_json_content(content):
@@ -224,38 +209,10 @@ def analyze_image(path, uid, name, report_date):
 
 
 def analyze_file(path, uid, name, report_date):
-    ext = (os.path.splitext(path)[1] or "").lower()
-    print(f"🔍 analyze_file: ext={ext}, path={path}", flush=True)
-
-    IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp", ".webp", ".heic", ".heif"}
-
-    # 1) Extension-based
-    if ext in IMAGE_EXTS:
+    ext = os.path.splitext(path)[1].lower()
+    if ext in [".jpg", ".jpeg", ".png", ".tiff", ".bmp"]:
         return analyze_image(path, uid, name, report_date)
-    if ext == ".pdf":
-        return analyze_pdf(path, uid, name, report_date)
-
-    # 2) Magic sniff for PDF
-    try:
-        with open(path, "rb") as f:
-            if f.read(5).startswith(b"%PDF-"):
-                print("📄 Detected PDF by magic bytes", flush=True)
-                return analyze_pdf(path, uid, name, report_date)
-    except Exception as e:
-        print(f"⚠️ Magic-sniff warning: {e}", flush=True)
-
-    # 3) Last-resort: let Pillow identify images
-    try:
-        from PIL import Image
-        with Image.open(path) as im:
-            fmt = (im.format or "").upper()
-        print(f"🖼️ Pillow identified format: {fmt}", flush=True)
-        return analyze_image(path, uid, name, report_date)
-    except Exception as e:
-        print(f"⚠️ Pillow identify failed: {e}", flush=True)
-
-    raise ValueError(f"Unsupported image format/type: ext={ext}")
-
+    return analyze_pdf(path, uid, name, report_date)
 
 # --- Main runner
 if __name__ == "__main__":
