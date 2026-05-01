@@ -168,9 +168,61 @@
     "HIV 1+0/2 Antibodies and HIV 1 p24 Antigen, Serum": "HIV Panel",
 
     "CHOL/HDL CHOL (Ratio)": "Cholesterol Tests",
-    "LDL Chol/HDL Ratio": "Cholesterol Tests"
+    "LDL Chol/HDL Ratio": "Cholesterol Tests",
+
+    "Free T3": "Thyroid Profile",
+    "Free T4": "Thyroid Profile",
+    "TSH (Ultra sensitive)": "Thyroid Profile",
+
+    "Random Urine Glucose": "Blood Sugar",
+    "Random Urine Ketone": "Blood Sugar",
+
+    "Dengue IgG": "Infectious Disease Markers",
+    "Dengue IgM": "Infectious Disease Markers",
+    "CHIKUNGUNYA IgM": "Infectious Disease Markers",
+    "Typhi IgG": "Infectious Disease Markers",
+    "Typhi IgM": "Infectious Disease Markers",
+    "Plasmodium Falciparum Antigen": "Infectious Disease Markers",
+    "Plasmodium Vivax Antigen": "Infectious Disease Markers",
+    "Lepto IgG": "Infectious Disease Markers",
+    "Lepto IgM": "Infectious Disease Markers",
+    "V.D.R.L. Test": "Infectious Disease Markers",
+
+
+  "Troponin I": "Cardiac Markers",
 
   
+  "Stool Examination": "Stool Examination",
+  "Stool Epithelial Cells": "Stool Examination",
+  "Stool Occult Blood": "Stool Examination",
+  "Stool Pus Cells": "Stool Examination",
+  "Stool Red Blood Cells": "Stool Examination",
+  "Stool Undigested Material": "Stool Examination",
+  "Stool Mucus": "Stool Examination",
+  "Stool Reaction (pH)": "Stool Examination",
+
+
+  "Hemoglobin": "CBC (Complete Blood Count)",
+  "Blood Pressure Systolic": "Vitals",
+  "Blood Pressure Diastolic": "Vitals",
+  "BP Systolic": "Vitals",
+  "BP Diastolic": "Vitals",
+
+  "Urine Protein": "Urine Examination",
+
+  "Estimated Fetal Weight": "Obstetric Ultrasound",
+  "EFW": "Obstetric Ultrasound",
+  "Amniotic Fluid Index": "Obstetric Ultrasound",
+  "AFI": "Obstetric Ultrasound",
+  "Placenta Position": "Obstetric Ultrasound",
+  "Fetal Growth": "Obstetric Ultrasound",
+
+  "Chief Complaint": "Clinical Notes",
+  "Clinical Risk Note": "Clinical Notes",
+  "Pregnancy Risk Summary": "Obstetric Summary"
+
 
 }
+
+
 
