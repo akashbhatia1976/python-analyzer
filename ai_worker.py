@@ -195,6 +195,17 @@ def analyse_image_bytes(img_bytes: bytes, source_desc: str = None) -> Dict[str, 
             ],
             response_format={"type": "json_object"}
         )
+
+        usage = getattr(resp, "usage", None)
+
+        if usage:
+            print("📊 Aether Imaging vision token usage:", flush=True)
+            print(f"   Model:         {MODEL}", flush=True)
+            print(f"   Source:        {source_desc}", flush=True)
+            print(f"   Input tokens:  {usage.prompt_tokens:,}", flush=True)
+            print(f"   Output tokens: {usage.completion_tokens:,}", flush=True)
+            print(f"   Total tokens:  {usage.total_tokens:,}", flush=True)
+
         raw = resp.choices[0].message.content
         if isinstance(raw, str):
             return json.loads(raw)
@@ -277,6 +288,16 @@ def summarise_study(arrays: List[List[Dict[str, Any]]]) -> str:
             temperature=0.3,
             messages=[{"role": "user", "content": prompt}]
         )
+
+        usage = getattr(resp, "usage", None)
+
+        if usage:
+            print("📊 Aether Imaging summary token usage:", flush=True)
+            print(f"   Model:         {MODEL}", flush=True)
+            print(f"   Input tokens:  {usage.prompt_tokens:,}", flush=True)
+            print(f"   Output tokens: {usage.completion_tokens:,}", flush=True)
+            print(f"   Total tokens:  {usage.total_tokens:,}", flush=True)
+        
         return resp.choices[0].message.content.strip()
     except Exception as e:
         print(f"Error generating summary: {e}")
