@@ -150,8 +150,30 @@ def analyze_with_openai(text):
         }
 
         print(f"🧠 OpenAI model: {OPENAI_MODEL}")
-        resp = _post_openai_with_retry(payload)  # ← NEW (retry/backoff)
-        content = resp.json().get("choices", [])[0].get("message", {}).get("content", "").strip()
+
+        resp = _post_openai_with_retry(payload)
+        data = resp.json()
+
+        # --- OpenAI token usage logging ---
+        usage = data.get("usage", {})
+
+        prompt_tokens = usage.get("prompt_tokens", 0)
+        completion_tokens = usage.get("completion_tokens", 0)
+        total_tokens = usage.get("total_tokens", 0)
+
+        print("📊 OpenAI token usage:", flush=True)
+        print(f"   Input tokens:  {prompt_tokens:,}", flush=True)
+        print(f"   Output tokens: {completion_tokens:,}", flush=True)
+        print(f"   Total tokens:  {total_tokens:,}", flush=True)
+
+        content = (
+            data.get("choices", [])[0]
+            .get("message", {})
+            .get("content", "")
+            .strip()
+        )
+
+        
         if not content:
             raise ValueError("Empty content from OpenAI.")
         return extract_json_content(content)
