@@ -1,18 +1,58 @@
 {
   "CBC (Complete Blood Count)": {
-    "Haemoglobin": ["hb", "hgb", "hemoglobin", "haemoglobin"],
-    "RBC": ["red blood cells", "rbc", "Total R.B.C. Count", "RBC count"],
-    "PCV": ["packed cell volume", "pcv", "PCV/HCT", "Hematocrit (Hct)", "Blood Group",
-      "ABO Group",
-      "Rh factor",
-      "Rh Factor"],
-    "MCV": ["mean corpuscular volume", "mcv"],
-    "MCH": ["mean corpuscular hemoglobin", "mch"],
-    "MCHC": ["mean corpuscular hemoglobin concentration", "mchc"],
-    "RDW": ["red cell distribution width", "rdw"],
-    "WBC Total Count": ["wbc", "white blood cells total count", "wbc total count", "WBC Count", "wbc count", "WEC Total Count", "wec total count", "Total W.B.C. Count"],
-    "WBC Differential Counts": ["wbc differential counts", "wbc differential and absolute counts"],
-    "Lymphocytes": ["lymphocytes (%)", "lymphs", "Lymphocytes"],
+    "Haemoglobin": [
+      "hb",
+      "hgb",
+      "hemoglobin",
+      "haemoglobin"
+    ],
+    "RBC": [
+      "red blood cells",
+      "rbc",
+      "Total R.B.C. Count",
+      "RBC count"
+    ],
+    "PCV": [
+      "packed cell volume",
+      "pcv",
+      "PCV/HCT",
+      "Hematocrit (Hct)"
+    ],
+    "MCV": [
+      "mean corpuscular volume",
+      "mcv"
+    ],
+    "MCH": [
+      "mean corpuscular hemoglobin",
+      "mch"
+    ],
+    "MCHC": [
+      "mean corpuscular hemoglobin concentration",
+      "mchc"
+    ],
+    "RDW": [
+      "red cell distribution width",
+      "rdw"
+    ],
+    "WBC Total Count": [
+      "wbc",
+      "white blood cells total count",
+      "wbc total count",
+      "WBC Count",
+      "wbc count",
+      "WEC Total Count",
+      "wec total count",
+      "Total W.B.C. Count"
+    ],
+    "WBC Differential Counts": [
+      "wbc differential counts",
+      "wbc differential and absolute counts"
+    ],
+    "Lymphocytes": [
+      "lymphocytes (%)",
+      "lymphs",
+      "Lymphocytes"
+    ],
     "Absolute Lymphocytes": [
       "absolute lymphocytes",
       "absolute lymphocyte count",
@@ -20,23 +60,35 @@
       "Absolute CD8 lymphocytes decreased",
       "Absolute Lymphocyte"
     ],
-    "Monocytes": ["monocytes (%)", "monos", "Monocytes"],
+    "Monocytes": [
+      "monocytes (%)",
+      "monos",
+      "Monocytes"
+    ],
     "Absolute Monocytes": [
       "absolute monocytes",
       "absolute monocyte count",
       "abs monos",
       "Absolute monocyte count"
     ],
-    "Neutrophils": ["neutrophils (%)", "neuts", "Neutrophils"],
+    "Neutrophils": [
+      "neutrophils (%)",
+      "neuts",
+      "Neutrophils"
+    ],
     "Absolute Neutrophils": [
-        "absolute neutrophils",
-        "absolute neutrophil count",
-        "abs neutrophils",
-        "abs neutrophil",
-        "absolute neutrophils (cells/µl)",
-        "Absolute neutrophil count"
-      ],
-    "Eosinophils": ["eosinophils (%)", "eos", "Eosinophils"],
+      "absolute neutrophils",
+      "absolute neutrophil count",
+      "abs neutrophils",
+      "abs neutrophil",
+      "absolute neutrophils (cells/µl)",
+      "Absolute neutrophil count"
+    ],
+    "Eosinophils": [
+      "eosinophils (%)",
+      "eos",
+      "Eosinophils"
+    ],
     "Absolute Eosinophils": [
       "absolute eosinophils",
       "absolute eosinophil count",
@@ -44,7 +96,11 @@
       "abs eosinophils",
       "Absolute Eosinophil Count"
     ],
-    "Basophils": ["basophils (%)", "basos", "Basophils"],
+    "Basophils": [
+      "basophils (%)",
+      "basos",
+      "Basophils"
+    ],
     "Absolute Basophils": [
       "absolute basophils",
       "absolute basophil count",
@@ -52,185 +108,560 @@
       "absolute basophils (cells/µl)",
       "Body Fluid Absolute Basophil Counts"
     ],
-    "Platelet Count": ["platelets", "platelet count", "platelet counts"],
-    "MPV": ["mean platelet volume", "mpv"],
-    "PDW": ["platelet distribution width", "pdw"],
-    "RBC Morphology": ["rbc morphology"],
-    "WBC Morphology": ["wbc morphology", "white blood cell morphology"],
-    "Band Forms": ["Band form", "band forms", "band neutrophils"]
+    "Platelet Count": [
+      "platelets",
+      "platelet count",
+      "platelet counts"
+    ],
+    "MPV": [
+      "mean platelet volume",
+      "mpv"
+    ],
+    "PDW": [
+      "platelet distribution width",
+      "pdw"
+    ],
+    "RBC Morphology": [
+      "rbc morphology"
+    ],
+    "WBC Morphology": [
+      "wbc morphology",
+      "white blood cell morphology"
+    ],
+    "Band Forms": [
+      "Band form",
+      "band forms",
+      "band neutrophils"
+    ],
+    "Hypochromia": [
+      "Hypochromia"
+    ],
+    "Microcytosis": [
+      "Microcytosis"
+    ],
+    "Macrocytosis": [
+      "Macrocytosis"
+    ],
+    "Anisocytosis": [
+      "Anisocytosis"
+    ],
+    "Poikilocytosis": [
+      "Poikilocytosis"
+    ],
+    "Polychromasia": [
+      "Polychromasia"
+    ],
+    "Target Cells": [
+      "Target Cells"
+    ],
+    "Basophilic Stippling": [
+      "Basophilic Stippling"
+    ],
+    "Normoblasts": [
+      "Normoblasts"
+    ],
+    "Immature Leukocytes": [
+      "Immature Leukocytes"
+    ],
+    "Platelet Morphology": [
+      "Platelet Morphology"
+    ]
   },
   "Kidney Function Tests": {
-    "BUN": ["blood urea nitrogen", "bun", "Bun, Serum", "BUN, Serum"],
-    "Creatinine": ["creatinine", "Creatinine, Serum", "CREATININE, Serum", "S. Creatinine",
-      "S. Creatinine (Jaffe's Method)"],
-    "eGFR": ["estimated glomerular filtration rate", "egfr", "eGFR, Serum", "e-GFR (MDRD equation)"],
-    "Total Proteins": ["total proteins", "total proteins, serum", "protein", "total protien", "Total Protein", "S. Total Protien", "S. Total Protien",  "S. Total Protein",
-    "S.Total Protein",
-    "S. Total Protein (Biurate)",
-    "Proteins",
-    "Protien"],
-    "Albumin": ["albumin", "ALBUMIN, Serum", "Albumin, Serum", "S. Albumin"],
-    "Globulin": ["globulin", "S. Globulin"],
-    "A/G Ratio": ["albumin/globulin ratio", "a/g ratio", "a/g ratio serum", "a/g ratio, serum"],
-    "Uric Acid": ["uric acid", "uric acid", "uric acid, serum", "S. Uric Acid"],
-    "Phosphorus": ["phosphorus", "PHOSPHORUS, Serum", "Phosphorus, Serum", "Phosphorus, SERUM", "Phosphorous"],
-    "Calcium": [
-        "calcium",
-        "Calcium, Serum",
-        "CALCIUM, SERUM",
-        "Calcium, SERUM",
-        "Serum ionized calcium (pH 7.4) level",
-        "ionised calcium",
-        "ionised calcium, serum",
-        "ionised calcium (serum)",
-        "lonised calcium",
-        "CALCIUM, IONIZED, SERUM",
-        "S. Calcium"
+    "BUN": [
+      "blood urea nitrogen",
+      "bun",
+      "Bun, Serum",
+      "BUN, Serum"
     ],
-    "Sodium": ["sodium", "sodium, serum", "S. Sodium"],
-    "Potassium": ["potassium", "Potassium, Serum", "POTASSIUM, SERUM", "Potasium", "S. Potassium"],
-    "Chloride": ["chloride", "Chloride, Serum", "CHLORIDE, SERUM", "chloride, serum", "CHLORIDE, Serum", "chloride", "chloride serum", "S. Chloride"],
-    "Blood Urea": ["Blood Urea", "BLOOD UREA", "BLOOD UREA, SERUM", "Blood Urea, Serum", "blood urea", "urea", "blood urea,serum" ]
-    
+    "Creatinine": [
+      "creatinine",
+      "Creatinine, Serum",
+      "CREATININE, Serum",
+      "S. Creatinine",
+      "S. Creatinine (Jaffe's Method)"
+    ],
+    "eGFR": [
+      "estimated glomerular filtration rate",
+      "egfr",
+      "eGFR, Serum",
+      "e-GFR (MDRD equation)"
+    ],
+    "Total Proteins": [
+      "total proteins",
+      "total proteins, serum",
+      "protein",
+      "total protien",
+      "Total Protein",
+      "S. Total Protien",
+      "S. Total Protien",
+      "S. Total Protein",
+      "S.Total Protein",
+      "S. Total Protein (Biurate)",
+      "Proteins",
+      "Protien"
+    ],
+    "Albumin": [
+      "albumin",
+      "ALBUMIN, Serum",
+      "Albumin, Serum",
+      "S. Albumin"
+    ],
+    "Globulin": [
+      "globulin",
+      "S. Globulin"
+    ],
+    "A/G Ratio": [
+      "albumin/globulin ratio",
+      "a/g ratio",
+      "a/g ratio serum",
+      "a/g ratio, serum"
+    ],
+    "Uric Acid": [
+      "uric acid",
+      "uric acid",
+      "uric acid, serum",
+      "S. Uric Acid"
+    ],
+    "Phosphorus": [
+      "phosphorus",
+      "PHOSPHORUS, Serum",
+      "Phosphorus, Serum",
+      "Phosphorus, SERUM",
+      "Phosphorous"
+    ],
+    "Calcium": [
+      "calcium",
+      "Calcium, Serum",
+      "CALCIUM, SERUM",
+      "Calcium, SERUM",
+      "Serum ionized calcium (pH 7.4) level",
+      "ionised calcium",
+      "ionised calcium, serum",
+      "ionised calcium (serum)",
+      "lonised calcium",
+      "CALCIUM, IONIZED, SERUM",
+      "S. Calcium"
+    ],
+    "Sodium": [
+      "sodium",
+      "sodium, serum",
+      "S. Sodium"
+    ],
+    "Potassium": [
+      "potassium",
+      "Potassium, Serum",
+      "POTASSIUM, SERUM",
+      "Potasium",
+      "S. Potassium"
+    ],
+    "Chloride": [
+      "chloride",
+      "Chloride, Serum",
+      "CHLORIDE, SERUM",
+      "chloride, serum",
+      "CHLORIDE, Serum",
+      "chloride",
+      "chloride serum",
+      "S. Chloride"
+    ],
+    "Blood Urea": [
+      "Blood Urea",
+      "BLOOD UREA",
+      "BLOOD UREA, SERUM",
+      "Blood Urea, Serum",
+      "blood urea",
+      "urea",
+      "blood urea,serum"
+    ]
   },
   "Liver Function Tests": {
-    "Bilirubin Total": ["total bilirubin", "bilirubin", "bilirubin (total)", "bilirubin (total), serum", "bilirubin total", "S.Total Billirubin", "S. Total Bilirubin", "S.Total Bilirubin", "S. Total Billirubin"],
-    "Bilirubin Direct": ["direct bilirubin", "BILIRUBIN, Direct", "Bilirubin (Direct)", "BILIRUBIN (DIRECT), Serum", "Bilirubin (Direct), Serum", "S.Direct Billirubin", "S. Direct Bilirubin", "S.Direct Bilirubin", "S. Direct Billirubin"],
-    "Bilirubin Indirect": ["indirect bilirubin", "BILIRUBIN, Indirect", "Bilirubin (Indirect)", "BILIRUBIN (INDIRECT)", "BILIRUBIN (INDIRECT), Serum", "Bilirubin (Indirect), Serum", "S.Indirect Billirubin", "S. Indirect Bilirubin", "S.Indirect Bilirubin", "S. Indirect Billirubin"],
-    "SGOT (AST)": ["sgot (ast)", "sgot (ast), serum", "ast", "sgot", "S.G.O.T.", "S. AST (S.G.O.T.)"],
-    "SGPT (ALT)": ["sgpt (alt)", "sgpt (alt), serum", "alt", "sgpt", "S.ALT (S.G.P.T.)", "S.G.P.T."],
-    "Gamma GT": ["ggt", "gamma glutamyl transferase", "gamma gt", "gamma gt, serum"],
-    "Alkaline Phosphatase": ["alkaline phosphatase, serum", "alp (alkaline phosphatase)", "alp", "alkaline phosphatase", "S.Alkaline Phosphatase", "S. Alkaline Phosphatase", "S.Alkaline Phosphatase (IFCC)"],
-    "GLOBULIN": ["globulin", "globulin serum", "globulin, serum", "S.Globulin",  "S. Globulin (calculated)"],
-    "Albumin": ["albumin", "albumin serum", "S.Albumin", "S. Albumin (BCG)"]
+    "Bilirubin Total": [
+      "total bilirubin",
+      "bilirubin (total)",
+      "bilirubin (total), serum",
+      "bilirubin total",
+      "S.Total Billirubin",
+      "S. Total Bilirubin",
+      "S.Total Bilirubin",
+      "S. Total Billirubin"
+    ],
+    "Bilirubin Direct": [
+      "direct bilirubin",
+      "BILIRUBIN, Direct",
+      "Bilirubin (Direct)",
+      "BILIRUBIN (DIRECT), Serum",
+      "Bilirubin (Direct), Serum",
+      "S.Direct Billirubin",
+      "S. Direct Bilirubin",
+      "S.Direct Bilirubin",
+      "S. Direct Billirubin"
+    ],
+    "Bilirubin Indirect": [
+      "indirect bilirubin",
+      "BILIRUBIN, Indirect",
+      "Bilirubin (Indirect)",
+      "BILIRUBIN (INDIRECT)",
+      "BILIRUBIN (INDIRECT), Serum",
+      "Bilirubin (Indirect), Serum",
+      "S.Indirect Billirubin",
+      "S. Indirect Bilirubin",
+      "S.Indirect Bilirubin",
+      "S. Indirect Billirubin"
+    ],
+    "SGOT (AST)": [
+      "sgot (ast)",
+      "sgot (ast), serum",
+      "ast",
+      "sgot",
+      "S.G.O.T.",
+      "S. AST (S.G.O.T.)"
+    ],
+    "SGPT (ALT)": [
+      "sgpt (alt)",
+      "sgpt (alt), serum",
+      "alt",
+      "sgpt",
+      "S.ALT (S.G.P.T.)",
+      "S.G.P.T."
+    ],
+    "Gamma GT": [
+      "ggt",
+      "gamma glutamyl transferase",
+      "gamma gt",
+      "gamma gt, serum"
+    ],
+    "Alkaline Phosphatase": [
+      "alkaline phosphatase, serum",
+      "alp (alkaline phosphatase)",
+      "alp",
+      "alkaline phosphatase",
+      "S.Alkaline Phosphatase",
+      "S. Alkaline Phosphatase",
+      "S.Alkaline Phosphatase (IFCC)"
+    ],
+    "GLOBULIN": [
+      "globulin",
+      "globulin serum",
+      "globulin, serum",
+      "S.Globulin",
+      "S. Globulin (calculated)"
+    ],
+    "Albumin": [
+      "albumin",
+      "albumin serum",
+      "S.Albumin",
+      "S. Albumin (BCG)"
+    ]
   },
   "Iron Studies": {
-    "IRON": ["iron", "Iron", "IRON, Serum", "Amylase",
-      "Lipase"],
-    "UIBC": ["unsaturated iron-binding capacity", "uibc", "uibc (measured)", "UIBC (measured), Serum", "uibc serum", "uibc (measured), serum"],
-    "TIBC": ["total iron-binding capacity", "tibc", "total iron binding capacity (tibc)", "TOTAL IRON BINDING CAPACITY (TIBC), Serum", "tibc serum", "total iron binding capacity (tibc), serum"],
-    "Transferrin": ["transferrin", "TRANSFERRIN, Serum"],
-    "Transferrin Saturation": ["transferrin sat", "transferrin saturation", "TRANSFERRIN SATURATION, Serum"],
-    "FERRITIN": ["ferritin", "ferritin test", "ferritin level", "FERRITIN", "Ferritin", "ferritin levels", "FERRITIN, Serum"]
+    "IRON": [
+      "iron",
+      "Iron",
+      "IRON, Serum"
+    ],
+    "UIBC": [
+      "unsaturated iron-binding capacity",
+      "uibc",
+      "uibc (measured)",
+      "UIBC (measured), Serum",
+      "uibc serum",
+      "uibc (measured), serum"
+    ],
+    "TIBC": [
+      "total iron-binding capacity",
+      "tibc",
+      "total iron binding capacity (tibc)",
+      "TOTAL IRON BINDING CAPACITY (TIBC), Serum",
+      "tibc serum",
+      "total iron binding capacity (tibc), serum"
+    ],
+    "Transferrin": [
+      "transferrin",
+      "TRANSFERRIN, Serum",
+      "Transferrin (measured)",
+      "Transferrin (measured), Serum"
+    ],
+    "Transferrin Saturation": [
+      "transferrin sat",
+      "transferrin saturation",
+      "TRANSFERRIN SATURATION, Serum"
+    ],
+    "FERRITIN": [
+      "ferritin",
+      "ferritin test",
+      "ferritin level",
+      "FERRITIN",
+      "Ferritin",
+      "ferritin levels",
+      "FERRITIN, Serum"
+    ]
   },
   "CRP-Quantitative Test": {
-    "CRP-Quantitative": ["crp quantitative", "crp", "CRP-Quantitative", "CRP-Quantitative, Serum", "crp-quantitative (serum)", "CRP - Quantitative (serum)",
-    "RA- QUANTITATIVE (Serum)",
-      "RA- Quantitative (Serum)"]
+    "CRP-Quantitative": [
+      "crp quantitative",
+      "crp",
+      "CRP-Quantitative",
+      "CRP-Quantitative, Serum",
+      "crp-quantitative (serum)",
+      "CRP - Quantitative (serum)"
+    ]
   },
   "Ionised Calcium": {
-    "Ionised Calcium, Serum": ["ionised calcium", "ionized calcium"]
+    "Ionised Calcium, Serum": [
+      "ionised calcium",
+      "ionized calcium"
+    ]
   },
   "Testosterone": {
-    "Testosterone": ["total testosterone", "testosterone, serum", "serum testosterone"]
+    "Testosterone": [
+      "total testosterone",
+      "testosterone, serum",
+      "serum testosterone",
+      "Testosterone, Serum"
+    ]
   },
   "Vitamin D": {
-    "25-hydroxy Vitamin D": ["vitamin d", "25-oh vitamin d", "vitamin d total", "25-HYDROXY Vitamin D",
-      "25-HYDROXY, Vitamin D"]
+    "25-hydroxy Vitamin D": [
+      "vitamin d",
+      "25-oh vitamin d",
+      "vitamin d total",
+      "25-HYDROXY Vitamin D",
+      "25-HYDROXY, Vitamin D",
+      "25-hydroxy Vitamin D, Serum",
+      "Vitamin D Total (25-OH Vitamin D)"
+    ]
   },
   "Vitamin B12": {
-    "Vitamin B12": ["vitamin b", "Vitamin B", "Vitamin-B12", "vitamin b12", "vitamin b-12"]
+    "Vitamin B12": [
+      "vitamin b",
+      "Vitamin B",
+      "Vitamin-B12",
+      "vitamin b12",
+      "vitamin b-12",
+      "Vitamin B12, Serum"
+    ]
   },
   "Urine Examination": {
-    "Reaction": ["reaction", "Reaction (ph)", "reaction (pH)", "reaction pH", "Reaction (pH)", "Urine Reaction (pH)", "Appearance",
+    "Reaction": [
+      "reaction",
+      "Reaction (ph)",
+      "reaction (pH)",
+      "reaction pH",
+      "Reaction (pH)",
+      "Urine Reaction (pH)",
+      "Appearance",
       "Urine Appearance",
       "Colour",
       "Urine Colour",
-      "Urine Color"],
-    "Specific Gravity": ["specific gravity", "Specific Gravity", "Specific gravity", "Urine Specific Gravity", "Quantity",
-      "Urine Quantity"],
-    "Pus Cells": ["Pus cells", "Pus cells /hpf", "Pus Cells hpf", "pus cells /hpf", "Urine Pus Cells",
+      "Urine Color"
+    ],
+    "Specific Gravity": [
+      "specific gravity",
+      "Specific Gravity",
+      "Specific gravity",
+      "Urine Specific Gravity",
+      "Quantity",
+      "Urine Quantity"
+    ],
+    "Pus Cells": [
+      "Pus cells",
+      "Pus cells /hpf",
+      "Pus Cells hpf",
+      "pus cells /hpf",
+      "Urine Pus Cells",
       "/HPF",
       "/hpf",
       "/ HPF",
-      "/ hpf"],
-    "Epithelial cells": ["epithelial cells", "Epithelial cells /hpf", "Urine Epithelial Cells",
-      "per HPF"],
-    "Urine Red Blood Cells": ["Red Blood Cells /hpf", "red blood cells /hpf", "Red blood cells /hpf", "Urine Red Blood Cells"],
-    "Urine pH": ["Urine pH", "Urine Reaction (pH)"],
-    "Urine Proteins": ["Urine Proteins", "Urine Proteins",
-      "Urine Bile Pigment",
-      "Urine Bile Salt",
-      "Urine Occult Blood",
-      "Urine Glucose",
-      "Urine Ketones",  "Proteins",
-      "Bile Pigment",
-      "Bile Salt",
-      "Glucose",
-      "Ketones",
-      "Occult Blood",
-      "Urine Others",
-      "Others"], 
-
-      "Bacteria": [
+      "/ hpf"
+    ],
+    "Epithelial cells": [
+      "epithelial cells",
+      "Epithelial cells /hpf",
+      "Urine Epithelial Cells",
+      "per HPF"
+    ],
+    "Urine Red Blood Cells": [
+      "Red Blood Cells /hpf",
+      "red blood cells /hpf",
+      "Red blood cells /hpf",
+      "Urine Red Blood Cells"
+    ],
+    "Urine pH": [
+      "Urine pH",
+      "Urine Reaction (pH)"
+    ],
+    "Urine Proteins": [
+      "Urine Proteins",
+      "Proteins",
+      "Urine Protein"
+    ],
+    "Bacteria": [
       "Bacteria",
       "Urine Bacteria"
-      ],
-      "Amorphous Material": [
-        "Amorphous Material",
-        "Urine Amorphous Material"
-      ],
-      "Candida": [
-        "Candida",
-        "Urine Candida"
-      ],
-      "Yeast Cells": [
-        "Yeast Cells",
-        "Urine Yeast Cells"
-      ],
-      "Mucus Strands": [
-        "Mucus Strands",
-        "Urine Mucus Strands"
-      ],
-      "Casts": [
-        "Casts",
-        "Urine Casts"
-      ],
-      "Crystals": [
-        "Crystals",
-        "Urine Crystals"
-      ]
+    ],
+    "Amorphous Material": [
+      "Amorphous Material",
+      "Urine Amorphous Material"
+    ],
+    "Candida": [
+      "Candida",
+      "Urine Candida"
+    ],
+    "Yeast Cells": [
+      "Yeast Cells",
+      "Urine Yeast Cells"
+    ],
+    "Mucus Strands": [
+      "Mucus Strands",
+      "Urine Mucus Strands"
+    ],
+    "Casts": [
+      "Casts",
+      "Urine Casts"
+    ],
+    "Crystals": [
+      "Crystals",
+      "Urine Crystals"
+    ],
+    "Urine Glucose": [
+      "Urine Glucose"
+    ],
+    "Urine Ketones": [
+      "Urine Ketones"
+    ],
+    "Urine Occult Blood": [
+      "Urine Occult Blood",
+      "Occult Blood"
+    ],
+    "Urobilinogen": [
+      "Urobilinogen"
+    ],
+    "Nitrite": [
+      "Nitrite",
+      "Urine Nitrite"
+    ]
   },
   "Cholesterol Tests": {
-      "Total Cholesterol": ["total cholesterol"],
-      "HDL Cholesterol": ["hdl cholesterol", "S.HDL Cholesterol", "hdl cholesterol serum", "s.hdl cholesterol", "H.D.L Cholestrol", "h.d.l cholestrol", "H.D.L CHOLESTROL", "S. HDL Cholesterol"],
-      "LDL Cholesterol": ["ldl cholesterol", "VLDL cholesterol measurement", "L.D.L Cholestrol", "l.d.l cholestrol", "L.D.L CHOLESTROL"],
-      "Triglycerides": ["triglycerides", "Serum VLDL triglyceride measurement", "serum triglycerides", "Serum Triglyceride",
+    "Total Cholesterol": [
+      "total cholesterol",
+      "cholesterol",
+      "cholesterol, serum",
+      "serum cholesterol",
+      "serum cholesterol studies",
+      "Serum. CHOLESTEROL"
+    ],
+    "HDL Cholesterol": [
+      "hdl cholesterol",
+      "S.HDL Cholesterol",
+      "hdl cholesterol serum",
+      "s.hdl cholesterol",
+      "H.D.L Cholestrol",
+      "h.d.l cholestrol",
+      "H.D.L CHOLESTROL",
+      "S. HDL Cholesterol",
+      "HDL Cholesterol, Serum"
+    ],
+    "LDL Cholesterol": [
+      "ldl cholesterol",
+      "L.D.L Cholestrol",
+      "l.d.l cholestrol",
+      "L.D.L CHOLESTROL",
+      "LDL Cholesterol, Serum"
+    ],
+    "Triglycerides": [
+      "triglycerides",
+      "Serum VLDL triglyceride measurement",
+      "serum triglycerides",
+      "Serum Triglyceride",
       "Serum. TRIGLYCERIDE",
       "Serum TRIGLYCERIDE",
-      "S. Triglyceride"],
-      "Serum Cholesterol": [
-        "Serum cholesterol studies", "serum cholesterol", "Serum. CHOLESTEROL"],
-      "Non HDL Cholesterol": [
-        "non-HDL cholesterol panel", "non-hdl", "non hdl cholesterol", "Non-HDL Cholesterol"],
-      "CHOL/HDL Chol (Ratio)": [
-          "CHOL/HDL Chol (Ratio)",
-            "CHOL/HDL CHOL(Ratio)",
-            "CHOL/HDL Chol(Ratio)",
-            "TCHOL/HDL Ratio",
-            "tchol/hdl ratio",
-            "CHOL/HDL CHOL Ratio"
-      ],
-      "LDL CHOL/HDL Ratio": [
-        "LDL CHOL/HDL Ratio"
-      ],
-      "VLDL Cholesterol": ["vldl cholesterol"]
+      "S. Triglyceride",
+      "Triglycerides, Serum"
+    ],
+    "Non HDL Cholesterol": [
+      "non-HDL cholesterol panel",
+      "non-hdl",
+      "non hdl cholesterol",
+      "Non-HDL Cholesterol",
+      "Non HDL Cholesterol, Serum"
+    ],
+    "CHOL/HDL Chol (Ratio)": [
+      "CHOL/HDL Chol (Ratio)",
+      "CHOL/HDL CHOL(Ratio)",
+      "CHOL/HDL Chol(Ratio)",
+      "TCHOL/HDL Ratio",
+      "tchol/hdl ratio",
+      "CHOL/HDL CHOL Ratio",
+      "Chol/HDL Chol Ratio",
+      "Chol/HDL Chol Ratio, Serum"
+    ],
+    "LDL CHOL/HDL Ratio": [
+      "LDL CHOL/HDL Ratio",
+      "LDL Chol/HDL Chol Ratio",
+      "LDL Chol/HDL Chol Ratio, Serum"
+    ],
+    "VLDL Cholesterol": [
+      "vldl cholesterol",
+      "VLDL Cholesterol, Serum"
+    ]
   },
   "Thyroid Profile": {
-    "TSH": ["tsh"],
+    "TSH": [
+      "tsh",
+      "Sensitive TSH",
+      "Sensitive TSH, Serum"
+    ],
     "TSH (Ultra sensitive)": [
       "TSH (Ultra sensitive)",
       "TSH (ULTRASENSITIVE)"
     ],
-    "T3": ["t3", "Free T3"],
-    "T4": ["t4", "Free T4"]
+    "T3": [
+      "t3"
+    ],
+    "Free T3": [
+      "Free T3",
+      "Free T3, Serum"
+    ],
+    "T4": [
+      "t4"
+    ],
+    "Free T4": [
+      "Free T4",
+      "Free T4, Serum"
+    ]
   },
   "Blood Sugar": {
-    "Fasting Blood Sugar": ["fasting blood sugar", "Plasma fasting glucose measurement", "Fasting Plasma Glucose", "fasting glucose", "fpg", "fasting plasma glucose"],
-    "Postprandial Blood Sugar": ["postprandial blood sugar", "Plasma 2-hr post-prandial glucose measurement", "Post Prandial Plasma Glucose", "ppg", "postprandial glucose", "post prandial plasma glucose", "Post Glucose Blood Sugar"],
+    "Fasting Blood Sugar": [
+      "fasting blood sugar",
+      "Plasma fasting glucose measurement",
+      "Fasting Plasma Glucose",
+      "fasting glucose",
+      "fpg",
+      "fasting plasma glucose",
+      "Glucose (Sugar) Fasting"
+    ],
+    "Postprandial Blood Sugar": [
+      "postprandial blood sugar",
+      "Plasma 2-hr post-prandial glucose measurement",
+      "Post Prandial Plasma Glucose",
+      "ppg",
+      "postprandial glucose",
+      "post prandial plasma glucose",
+      "Post Glucose Blood Sugar",
+      "Glucose (Sugar) PP"
+    ],
     "HbA1c": [
       "HbA1c",
-      "HbAic"
+      "HbAic",
+      "Glycosylated Hemoglobin",
+      "Glycosylated Hemoglobin (HbA1c)",
+      "Glycosylated Hemoglobin (HbA1c), EDTA WB"
+    ],
+    "Estimated Average Glucose": [
+      "Estimated Average Glucose",
+      "Estimated Average Glucose (eAG)",
+      "Estimated Average Glucose (eAG), EDTA WB"
     ],
     "Mean Blood Glucose (M.B.G.)": [
       "Mean Blood Glucose (M.B.G.)",
@@ -240,7 +671,6 @@
     "Random Plasma Glucose": [
       "Random Plasma Glucose"
     ],
-
     "Fasting Urine Glucose": [
       "Fasting Urine Glucose"
     ],
@@ -261,46 +691,92 @@
     ]
   },
   "Coagulation": {
-      "INR": ["inr"],
-      "PTT": ["ptt", "Prothrombin Time Test"],
-      "Prothrombin Time": ["prothrombin time", "Mean Normal Prothrombin Time", "Bleeding Time",
+    "INR": [
+      "inr"
+    ],
+    "PTT": [
+      "ptt",
+      "Prothrombin Time Test"
+    ],
+    "Prothrombin Time": [
+      "prothrombin time",
+      "Mean Normal Prothrombin Time",
+      "Bleeding Time",
       "Clotting Time",
       "Control Time",
-      "Patient Time"],
-      "Prothrombin Ratio": ["prothrombin ratio", "Protrombin Index", "Protrombin Ratio", "ISI value of Prothrombin used",
-      "Prothrombin Index"]
+      "Patient Time"
+    ],
+    "Prothrombin Ratio": [
+      "prothrombin ratio",
+      "Protrombin Index",
+      "Protrombin Ratio",
+      "ISI value of Prothrombin used",
+      "Prothrombin Index"
+    ]
   },
   "Cardiac Markers": {
-      "NT-proBNP": ["nt-probnp", "nt-probnp (serum)", "NT-proBNP, Serum", "nt-probnp serum", "nt-probnp, serum", "PRO-BNP (N-TERMINAL PRO BRAIN NATRIURETIC PEPTIDE)"],
-      "Troponin I": [
+    "NT-proBNP": [
+      "nt-probnp",
+      "nt-probnp (serum)",
+      "NT-proBNP, Serum",
+      "nt-probnp serum",
+      "nt-probnp, serum",
+      "PRO-BNP (N-TERMINAL PRO BRAIN NATRIURETIC PEPTIDE)"
+    ],
+    "Troponin I": [
       "TROPONIN I",
       "Troponin I"
-     ]
-    },
-  "Others": {
-    "pH": ["ph"],   
-    "Serum": ["serum"],
-    "Biological Reference Range": ["biological reference range"],
-    "Chemical Examination": ["chemical examination"],
-    "Physical Examination": ["physical examination"]
+    ]
   },
-  
+  "Others": {
+    "pH": [
+      "ph"
+    ],
+    "Serum": [
+      "serum"
+    ],
+    "Biological Reference Range": [
+      "biological reference range"
+    ],
+    "Chemical Examination": [
+      "chemical examination"
+    ],
+    "Physical Examination": [
+      "physical examination"
+    ]
+  },
   "Risk Assessment": {
-    "Fall risk total": ["Fall risk total", "Fall risk score", "MFS score"],
-    "Fall risk level": ["Fall risk level", "Morse level", "MFS level"]
+    "Fall risk total": [
+      "Fall risk total",
+      "Fall risk score",
+      "MFS score"
+    ],
+    "Fall risk level": [
+      "Fall risk level",
+      "Morse level",
+      "MFS level"
+    ]
   },
   "Electrolytes": {
-    "Carbon dioxide, total": ["Carbon dioxide, total", "Total CO2", "Bicarbonate", "carbon dioxide, total [moles/volume] in blood"]
+    "Carbon dioxide, total": [
+      "Carbon dioxide, total",
+      "Total CO2",
+      "Bicarbonate",
+      "carbon dioxide, total [moles/volume] in blood"
+    ]
   },
-  
   "Hepatitis B": {
     "Hepatitis B Surface Antigen": [
       "hepatitis \"b\" surface antigen (hbsag), serum",
       "hepatitis \"b\" surface antigen (hbsag)",
       "hepatitis 'b' surface antigen (hbsag), serum",
       "hepatitis 'b' surface antigen (hbsag)",
-      "hbsag", "hb sag", "hep b surface antigen",
-      "hepatitis b surface ag", "hbsag serum", "hbsag test",
+      "hbsag",
+      "hb sag",
+      "hep b surface antigen",
+      "hepatitis b surface ag",
+      "hbsag serum",
+      "hbsag test",
       "Hepatitis 'B' Surface Antigen (HBsAg), Serum",
       "HEPATITIS B SURFACE ANTIGEN (HBsAg)",
       "HEPATITIS B SURFACE ANTIGEN (HBsAg)",
@@ -315,8 +791,13 @@
     "Hepatitis C Antibodies": [
       "hcv serum",
       "hcv  serum",
-      "anti hcv", "hcv antibodies", "hcv ab",
-      "anti-hcv antibody", "anti hcv serum", "anti-hcv ab test", "HCV Serum",
+      "anti hcv",
+      "hcv antibodies",
+      "hcv ab",
+      "anti-hcv antibody",
+      "anti hcv serum",
+      "anti-hcv ab test",
+      "HCV Serum",
       "ANTI - HCV - total",
       "ANTI-HCV - total"
     ]
@@ -338,28 +819,26 @@
       "HIV-2 Antibody Detection"
     ]
   },
-  
-  "Salmonella":{
-      "Salmonella typhi 'H'": [
-        "Salmonella enterica subspecies enterica serovar Typhi H antibody"
-      ],
-      "Salmonella paratyphi 'AH'": [
-        "Salmonella paratyphi 'AH'"
-      ],
-      "Salmonella paratyphi 'BH'": [
-        "Salmonella paratyphi 'BH'"
-        ]
-  },
-
-
-"Inflammation Markers": {
-    "E.S.R. (Westergren Method)": [
-      "E.S.R. (Westergren Method)"
+  "Salmonella": {
+    "Salmonella typhi 'H'": [
+      "Salmonella enterica subspecies enterica serovar Typhi H antibody"
+    ],
+    "Salmonella paratyphi 'AH'": [
+      "Salmonella paratyphi 'AH'"
+    ],
+    "Salmonella paratyphi 'BH'": [
+      "Salmonella paratyphi 'BH'"
     ]
   },
-
-
-"Infectious Disease Markers": {
+  "Inflammation Markers": {
+    "E.S.R. (Westergren Method)": [
+      "E.S.R. (Westergren Method)",
+      "ESR",
+      "E.S.R.",
+      "Erythrocyte Sedimentation Rate"
+    ]
+  },
+  "Infectious Disease Markers": {
     "Salmonella typhi 'H'": [
       "Salmonella typhi 'H'",
       "Widal Test - Salmonella typhi 'H'"
@@ -378,10 +857,12 @@
       "Dengue NS1 Antigen"
     ],
     "Dengue IgG": [
-      "Dengue IgG"
+      "Dengue IgG",
+      "Dengue IgG Antibody"
     ],
     "Dengue IgM": [
-      "Dengue IgM"
+      "Dengue IgM",
+      "Dengue IgM Antibody"
     ],
     "CHIKUNGUNYA IgM": [
       "CHIKUNGUNYA IgM",
@@ -391,7 +872,8 @@
       "Malarial Parasite"
     ],
     "Plasmodium Falciparum Antigen": [
-      "Plasmodium Falciparum Antigen"
+      "Plasmodium Falciparum Antigen",
+      "Pl. falciparum"
     ],
     "Plasmodium Vivax Antigen": [
       "Plasmodium Vivax Antigen"
@@ -410,9 +892,13 @@
     ],
     "V.D.R.L. Test": [
       "V.D.R.L. Test"
+    ],
+    "Malaria Antigen": [
+      "MP Antigen",
+      "MP Ag",
+      "Malaria Antigen"
     ]
   },
-
   "Stool Examination": {
     "Stool Examination": [
       "Stool Examination"
@@ -438,11 +924,35 @@
     ],
     "Stool Reaction (pH)": [
       "Stool Reaction (pH)"
+    ]
+  },
+  "Other Biochemistry": {
+    "LDH": [
+      "LDH",
+      "LDH, Serum"
     ],
-
-
-
-
+    "CPK Total": [
+      "CPK-TOTAL",
+      "CPK-TOTAL, Serum",
+      "CPK-Total, Serum",
+      "CPK Total"
+    ],
+    "Homocysteine": [
+      "Homocysteine",
+      "Homocysteine, EDTA Plasma"
+    ],
+    "hs-CRP": [
+      "hs-CRP",
+      "HS-CRP",
+      "HS-CRP, Serum",
+      "High Sensitive CRP",
+      "High Sensitivity CRP"
+    ],
+    "Total PSA": [
+      "Total PSA",
+      "Total PSA, Serum"
+    ]
+  },
   "Vitals": {
     "Blood Pressure Systolic": [
       "bp systolic",
@@ -457,7 +967,6 @@
       "blood pressure diastolic"
     ]
   },
-
   "Obstetric Ultrasound": {
     "Estimated Fetal Weight": [
       "efw",
@@ -481,7 +990,6 @@
       "growth ultrasound"
     ]
   },
-
   "Clinical Notes": {
     "Chief Complaint": [
       "chief complaint",
@@ -496,7 +1004,6 @@
       "risk note"
     ]
   },
-
   "Obstetric Summary": {
     "Pregnancy Risk Summary": [
       "pregnancy risk summary",
@@ -505,8 +1012,4 @@
       "pregnancy summary"
     ]
   }
-  }
-
 }
-
-
