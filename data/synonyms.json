@@ -4,35 +4,42 @@
       "hb",
       "hgb",
       "hemoglobin",
-      "haemoglobin"
+      "haemoglobin",
+      "Haemoglobin (Hb)"
     ],
     "RBC": [
       "red blood cells",
       "rbc",
       "Total R.B.C. Count",
-      "RBC count"
+      "RBC count",
+      "Erythrocyte (RBC) Count"
     ],
     "PCV": [
       "packed cell volume",
       "pcv",
       "PCV/HCT",
-      "Hematocrit (Hct)"
+      "Hematocrit (Hct)",
+      "PCV (Packed Cell Volume)"
     ],
     "MCV": [
       "mean corpuscular volume",
-      "mcv"
+      "mcv",
+      "MCV (Mean Corpuscular Volume)"
     ],
     "MCH": [
       "mean corpuscular hemoglobin",
-      "mch"
+      "mch",
+      "MCH (Mean Corpuscular Hb)"
     ],
     "MCHC": [
       "mean corpuscular hemoglobin concentration",
-      "mchc"
+      "mchc",
+      "MCHC (Mean Corpuscular Hb Concn.)"
     ],
     "RDW": [
       "red cell distribution width",
-      "rdw"
+      "rdw",
+       "RDW (Red Cell Distribution Width)"
     ],
     "WBC Total Count": [
       "wbc",
@@ -42,7 +49,8 @@
       "wbc count",
       "WEC Total Count",
       "wec total count",
-      "Total W.B.C. Count"
+      "Total W.B.C. Count",
+      "Total Leucocytes (WBC) Count"
     ],
     "WBC Differential Counts": [
       "wbc differential counts",
@@ -82,7 +90,8 @@
       "abs neutrophils",
       "abs neutrophil",
       "absolute neutrophils (cells/µl)",
-      "Absolute neutrophil count"
+      "Absolute neutrophil count",
+      "Absolute Neutrophils Count"
     ],
     "Eosinophils": [
       "eosinophils (%)",
@@ -115,12 +124,18 @@
     ],
     "MPV": [
       "mean platelet volume",
-      "mpv"
+      "mpv",
+      "MPV (Mean Platelet Volume)"
     ],
     "PDW": [
       "platelet distribution width",
       "pdw"
     ],
+
+    "Plateletcrit": [
+      "PCT (Platelet crit)"
+    ],
+
     "RBC Morphology": [
       "rbc morphology"
     ],
@@ -404,7 +419,8 @@
       "CRP-Quantitative",
       "CRP-Quantitative, Serum",
       "crp-quantitative (serum)",
-      "CRP - Quantitative (serum)"
+      "CRP - Quantitative (serum)",
+      "CRP (C Reactive Protein), Serum"
     ]
   },
   "Ionised Calcium": {
@@ -429,7 +445,8 @@
       "25-HYDROXY Vitamin D",
       "25-HYDROXY, Vitamin D",
       "25-hydroxy Vitamin D, Serum",
-      "Vitamin D Total (25-OH Vitamin D)"
+      "Vitamin D Total (25-OH Vitamin D)",
+      "Vitamin D Total - 25 Hydroxy (OH)"
     ]
   },
   "Vitamin B12": {
@@ -439,7 +456,8 @@
       "Vitamin-B12",
       "vitamin b12",
       "vitamin b-12",
-      "Vitamin B12, Serum"
+      "Vitamin B12, Serum",
+      "Vitamin B12 (Cyanocobalamin)"
     ]
   },
   "Urine Examination": {
@@ -604,13 +622,34 @@
     "VLDL Cholesterol": [
       "vldl cholesterol",
       "VLDL Cholesterol, Serum"
+    ],
+
+    "Apolipoprotein A1": [
+      "Apolipoprotein A1",
+      "Apolipoproteins A1",
+      "Apolipoproteins Al"
+    ],
+
+    "Apolipoprotein B": [
+      "Apolipoprotein B",
+      "Apolipoproteins B"
+    ],
+
+    "Apolipoprotein B/A1 Ratio": [
+      "Apolipoprotein B/A1 Ratio"
+    ],
+
+    "Lipoprotein(a)": [
+      "Lipoprotein(a)",
+      "Lp(a)"
     ]
   },
   "Thyroid Profile": {
     "TSH": [
       "tsh",
       "Sensitive TSH",
-      "Sensitive TSH, Serum"
+      "Sensitive TSH, Serum",
+      "TSH (Thyroid Stimulating Hormone)"
     ],
     "TSH (Ultra sensitive)": [
       "TSH (Ultra sensitive)",
@@ -621,14 +660,16 @@
     ],
     "Free T3": [
       "Free T3",
-      "Free T3, Serum"
+      "Free T3, Serum",
+      "FT3 (Free Triiodothyronine)"
     ],
     "T4": [
       "t4"
     ],
     "Free T4": [
       "Free T4",
-      "Free T4, Serum"
+      "Free T4, Serum",
+      "FT4 (Free Thyroxine)"
     ]
   },
   "Blood Sugar": {
@@ -639,7 +680,8 @@
       "fasting glucose",
       "fpg",
       "fasting plasma glucose",
-      "Glucose (Sugar) Fasting"
+      "Glucose (Sugar) Fasting",
+      "Glucose Fasting"
     ],
     "Postprandial Blood Sugar": [
       "postprandial blood sugar",
@@ -656,8 +698,16 @@
       "HbAic",
       "Glycosylated Hemoglobin",
       "Glycosylated Hemoglobin (HbA1c)",
-      "Glycosylated Hemoglobin (HbA1c), EDTA WB"
+      "Glycosylated Hemoglobin (HbA1c), EDTA WB",
+      "HbA1C- Glycated Haemoglobin"
     ],
+
+    "Fasting Insulin": [
+      "Insulin - Fasting",
+      "Fasting Insulin",
+      "Insulin Fasting"
+    ],
+
     "Estimated Average Glucose": [
       "Estimated Average Glucose",
       "Estimated Average Glucose (eAG)",
