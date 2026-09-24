@@ -219,5 +219,21 @@
   "Serum": "Others",
   "Biological Reference Range": "Others",
   "Chemical Examination": "Others",
-  "Physical Examination": "Others"
+  "Physical Examination": "Others",
+  "Uterus": "Pelvic Ultrasound",
+  "Uterus Size": "Pelvic Ultrasound",
+  "Uterus Position": "Pelvic Ultrasound",
+  "Uterus Echotexture": "Pelvic Ultrasound",
+  "Endometrial Echo": "Pelvic Ultrasound",
+  "Endometrial Thickness": "Pelvic Ultrasound",
+  "Right Ovary Size": "Pelvic Ultrasound",
+  "Left Ovary Size": "Pelvic Ultrasound",
+  "Right Ovarian Cystic Lesion": "Pelvic Ultrasound",
+  "Left Ovarian Cystic Lesion": "Pelvic Ultrasound",
+  "Right Adnexal Cystic Lesion": "Pelvic Ultrasound",
+  "Left Adnexal Cystic Lesion": "Pelvic Ultrasound",
+  "Left Adnexal Cystic Structure": "Pelvic Ultrasound",
+  "Right Adnexal Cystic Structure": "Pelvic Ultrasound",
+  "Free Fluid in Pelvis": "Pelvic Ultrasound",
+  "Urinary Bladder": "Pelvic Ultrasound"
 }

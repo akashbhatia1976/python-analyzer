@@ -1004,6 +1004,130 @@
       "risk note"
     ]
   },
+
+  "Pelvic Ultrasound": {
+  "Uterus": [
+    "Uterus",
+    "uterus",
+    "uterine appearance"
+  ],
+
+  "Uterus Size": [
+    "Uterus Size",
+    "uterus size",
+    "uterine size",
+    "uterus dimensions",
+    "uterine dimensions"
+  ],
+
+  "Uterus Position": [
+    "Uterus Position",
+    "uterus position",
+    "uterine position"
+  ],
+
+  "Uterus Echotexture": [
+    "Uterus Echotexture",
+    "uterus echotexture",
+    "uterine echotexture",
+    "myometrial echotexture"
+  ],
+
+  "Endometrial Echo": [
+    "Endometrial Echo",
+    "endometrial echo",
+    "endometrial echoes",
+    "endometrium echo"
+  ],
+
+  "Endometrial Thickness": [
+    "Endometrial Thickness",
+    "endometrial thickness",
+    "endometrium thickness",
+    "endometrial stripe thickness",
+    "endometrial stripe",
+    "ET"
+  ],
+
+  "Right Ovary Size": [
+    "Right Ovary Size",
+    "right ovary size",
+    "right ovarian size",
+    "right ovary dimensions",
+    "right ovarian dimensions"
+  ],
+
+  "Left Ovary Size": [
+    "Left Ovary Size",
+    "left ovary size",
+    "left ovarian size",
+    "left ovary dimensions",
+    "left ovarian dimensions"
+  ],
+
+  "Right Ovarian Cystic Lesion": [
+    "Right Ovarian Cystic Lesion",
+    "right ovarian cystic lesion",
+    "cystic lesion in right ovary",
+    "right ovarian cyst",
+    "cyst in right ovary"
+  ],
+
+  "Left Ovarian Cystic Lesion": [
+    "Left Ovarian Cystic Lesion",
+    "left ovarian cystic lesion",
+    "cystic lesion in left ovary",
+    "Cystic Area in Left Ovary",
+    "cystic area in left ovary",
+    "left ovarian cyst",
+    "cyst in left ovary"
+  ],
+
+  "Right Adnexal Cystic Lesion": [
+    "Right Adnexal Cystic Lesion",
+    "right adnexal cystic lesion",
+    "Cystic Lesion in Right Adnexa",
+    "cystic lesion in right adnexa",
+    "right adnexal cyst"
+  ],
+
+  "Left Adnexal Cystic Lesion": [
+    "Left Adnexal Cystic Lesion",
+    "left adnexal cystic lesion",
+    "cystic lesion in left adnexa",
+    "left adnexal cyst"
+  ],
+
+  "Left Adnexal Cystic Structure": [
+    "Left Adnexal Cystic Structure",
+    "left adnexal cystic structure",
+    "Anechoic Cystic Structure Adjacent to Left Ovary",
+    "anechoic cystic structure adjacent to left ovary"
+  ],
+
+  "Right Adnexal Cystic Structure": [
+    "Right Adnexal Cystic Structure",
+    "right adnexal cystic structure",
+    "Anechoic Cystic Structure Adjacent to Right Ovary",
+    "anechoic cystic structure adjacent to right ovary"
+  ],
+
+  "Free Fluid in Pelvis": [
+    "Free Fluid in Pelvis",
+    "free fluid in pelvis",
+    "pelvic free fluid",
+    "free fluid seen in pelvis",
+    "minimal free fluid in pelvis",
+    "fluid in pelvis"
+  ],
+
+  "Urinary Bladder": [
+    "Urinary Bladder",
+    "urinary bladder",
+    "bladder"
+  ]
+},
+
   "Obstetric Summary": {
     "Pregnancy Risk Summary": [
       "pregnancy risk summary",
